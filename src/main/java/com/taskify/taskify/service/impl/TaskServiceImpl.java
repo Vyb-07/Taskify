@@ -7,6 +7,8 @@ import com.taskify.taskify.exception.TaskNotFoundException;
 import com.taskify.taskify.model.Task;
 import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.service.TaskService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -99,5 +101,18 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
         taskRepository.delete(task);
+    }
+
+    @Override
+    public Page<TaskResponse> getAllTasks(Pageable pageable){
+        return taskRepository.findAll(pageable)
+                .map(t->new TaskResponse(
+                        t.getId(),
+                        t.getTitle(),
+                        t.getDescription(),
+                        t.getStatus(),
+                        t.getDueDate(),
+                        t.getCreatedAt()
+                ));
     }
 }
