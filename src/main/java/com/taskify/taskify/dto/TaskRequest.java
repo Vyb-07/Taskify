@@ -1,6 +1,10 @@
 package com.taskify.taskify.dto;
 
 import com.taskify.taskify.model.Status;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDateTime;
 
 /**
@@ -8,9 +12,16 @@ import java.time.LocalDateTime;
  * Intentionally contains only the fields the client should supply.
  */
 public class TaskRequest {
+    @NotBlank(message = "title is required")
+    @Size(max = 256, message = "title must be <= 255 characters")
     private String title;
+
+    @Size(max = 1000, message = "description must be <= 1000 characters")
     private String description;
+
     private Status status;
+
+    @FutureOrPresent(message = "dueDate cannot be in the past")
     private LocalDateTime dueDate;
 
     public TaskRequest() {}

@@ -3,6 +3,7 @@ package com.taskify.taskify.controller;
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
 import com.taskify.taskify.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class TaskController {
 
     // POST /api/tasks
     @PostMapping
-    public ResponseEntity<TaskResponse> createTask(@RequestBody TaskRequest request) {
+    public ResponseEntity<TaskResponse> createTask(@RequestBody @Valid TaskRequest request) {
         TaskResponse createdTask = taskService.createTask(request);
         return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }
@@ -42,7 +43,7 @@ public class TaskController {
 
     @PutMapping("/{id}")
     public ResponseEntity<TaskResponse> updateTask(@PathVariable Long id,
-                                                   @RequestBody TaskRequest request) {
+                                                   @RequestBody @Valid TaskRequest request) {
         TaskResponse updatedTask = taskService.updateTask(id, request);
         return ResponseEntity.ok(updatedTask); // HTTP 200 OK
     }
