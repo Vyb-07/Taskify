@@ -2,6 +2,7 @@ package com.taskify.taskify.controller;
 
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
+import com.taskify.taskify.model.Status;
 import com.taskify.taskify.service.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -56,6 +57,15 @@ public class TaskController {
     public ResponseEntity<TaskResponse> getTaskById(@PathVariable Long id) {
         TaskResponse task = taskService.getTaskById(id);
         return ResponseEntity.ok(task); // 200 OK
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<TaskResponse>> searchTasks(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Status status
+    ) {
+        List<TaskResponse> tasks = taskService.getTasksByFilter(title, status);
+        return ResponseEntity.ok(tasks);
     }
 
     @PutMapping("/{id}")

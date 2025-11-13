@@ -4,6 +4,7 @@ package com.taskify.taskify.service.impl;
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
 import com.taskify.taskify.exception.TaskNotFoundException;
+import com.taskify.taskify.model.Status;
 import com.taskify.taskify.model.Task;
 import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.service.TaskService;
@@ -114,5 +115,31 @@ public class TaskServiceImpl implements TaskService {
                         t.getDueDate(),
                         t.getCreatedAt()
                 ));
+    }
+
+    @Override
+    public List<TaskResponse> getTasksByFilter(String title, Status status) {
+        List<Task> tasks;
+
+        if (title != null && status != null) {
+            tasks = taskRepository.findByStatusAndTitleContainingIgnoreCase(status, title);
+        } else if (status != null) {
+            tasks = taskRepository.findByStatus(status);
+        } else if (title != null) {
+            tasks = taskRepository.findByTitleContainingIgnoreCase(title);
+        } else {
+            tasks = taskRepository.findAll();
+        }
+
+        return tasks.stream()
+                .map(t -> new TaskResponse(
+                        t.getId(),
+                        t.getTitle(),
+                        t.getDescription(),
+                        t.getStatus(),
+                        t.getDueDate(),
+                        t.getCreatedAt()
+                ))
+                .collect(Collectors.toList());
     }
 }
