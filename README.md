@@ -1,176 +1,281 @@
-🚀 Taskify – Spring Boot REST API
+Taskify – Spring Boot Task Management API
 
-Taskify is a backend-only task management API built with Spring Boot 3, MySQL (Docker), JPA/Hibernate, and a clean layered architecture using DTOs, Services, and Exception Handling.
-The project is being built step-by-step to simulate real-world backend development and deployment practices.
+Taskify is a fully-featured Task Management REST API built using Spring Boot 3, Java 21, Docker, MySQL, and JWT authentication.
+It’s structured with clean layering, DTO mapping, validation, exception handling, and follows modern API design practices.
 
-⸻
-
-✅ Features Implemented (So Far)
-
-Feature	Status
-MySQL database running in Docker	✅
-Task entity + enum (Status)	✅
-Task CRUD (Create, Read, Update, Delete)	✅
-DTO mapping (Request & Response models)	✅
-Service layer abstraction (interface + impl)	✅
-Global exception handling using @ControllerAdvice	✅
-Custom domain exception: TaskNotFoundException	✅
-API error response format (ApiError DTO)	✅
-
-Validation, authentication, filtering, pagination, and frontend integration will be added in future phases.
+The project was built step-by-step to learn backend fundamentals the right way — by actually doing the work.
 
 ⸻
 
-🧱 Tech Stack
-
-Layer	Tech
-Backend	Spring Boot 3 (Java 21)
-Build tool	Maven
-Database	MySQL 8 (Dockerized)
-ORM	Spring Data JPA + Hibernate
-API Format	REST + JSON
-Error Handling	@ControllerAdvice + custom exceptions
-Dev Tools	Spring Boot DevTools, Postman
-
+🚀 Tech Stack
+•	Java 21
+•	Spring Boot 3
+•	Spring Web
+•	Spring Data JPA
+•	Spring Security
+•	Validation
+•	JWT (JSON Web Tokens)
+•	MySQL 8 (Dockerized)
+•	Hibernate ORM
+•	Lombok (optional, if enabled)
+•	Postman for API testing
 
 ⸻
 
-🐳 Run MySQL with Docker
+📦 Architecture Overview
+
+taskify/
+├── controller/        → REST endpoints  
+├── service/           → Business logic  
+│     ├── impl/        → Service implementations
+├── repository/        → JPA repositories  
+├── model/             → JPA entities  
+├── dto/               → Request & Response DTOs  
+├── exception/         → Global handling  
+├── security/          → JWT, filters, UserDetailsService  
+├── config/            → Security config, beans  
+└── TaskifyApplication.java
+
+This ensures clean separation of concerns — controllers stay thin, services hold logic, and entities stay persistence-focused.
+
+⸻
+
+🗄️ Docker + MySQL Setup
+
+MySQL container:
 
 docker run --name taskify-mysql \
-  -e MYSQL_ROOT_PASSWORD=rootpass \
-  -e MYSQL_DATABASE=taskify_db \
-  -e MYSQL_USER=taskuser \
-  -e MYSQL_PASSWORD=taskpass \
-  -p 3306:3306 \
-  -d mysql:8.0
+-e MYSQL_ROOT_PASSWORD=rootpass \
+-e MYSQL_DATABASE=taskify_db \
+-e MYSQL_USER=taskuser \
+-e MYSQL_PASSWORD=taskpass \
+-p 3306:3306 \
+-d mysql:8.0
 
-Verify connection:
-
-docker exec -it taskify-mysql mysql -u taskuser -p
-SHOW DATABASES;
-
-
-⸻
-
-⚙️ Application Properties
-
-src/main/resources/application.properties:
+application.properties:
 
 spring.datasource.url=jdbc:mysql://localhost:3306/taskify_db
 spring.datasource.username=taskuser
 spring.datasource.password=taskpass
 spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
+
+# JWT
+jwt.secret=YOUR-SECRET-HERE
+jwt.expiration=86400000
 
 
 ⸻
 
-📦 API Endpoints (Current)
+🧱 Entities
 
-Method	Endpoint	Description	Returns
-POST	/api/tasks	Create new task	201 Created + TaskResponse
-GET	/api/tasks	Get all tasks	200 OK + List<TaskResponse>
-GET	/api/tasks/{id}	Get task by ID	200 OK or 404 Not Found
-PUT	/api/tasks/{id}	Update existing task	200 OK + TaskResponse
-DELETE	/api/tasks/{id}	Delete task	204 No Content
+Task
+•	id
+•	title
+•	description
+•	status (Enum: PENDING, IN_PROGRESS, COMPLETED)
+•	dueDate
+•	createdAt
 
+User
+•	id
+•	username
+•	email
+•	password (BCrypt encrypted)
+•	roles (ManyToMany)
+
+Role
+•	id
+•	name (ROLE_USER, ROLE_ADMIN)
 
 ⸻
 
-🧩 DTO Structure
+📩 DTO Layer
 
-TaskRequest (input)
+Request DTOs
+•	TaskRequest
+•	RegisterRequest
+•	LoginRequest
+
+Response DTOs
+•	TaskResponse
+•	AuthResponse
+•	ApiError
+
+DTOs ensure clean API contract and hide internal entity structure.
+
+⸻
+
+🧹 Validation
+
+Every request DTO uses annotation-based validation:
+•	@NotBlank
+•	@Size
+•	@Future
+•	@NotNull
+
+Handled using a global exception handler.
+
+⸻
+
+🛑 GlobalExceptionHandler
+
+Catches:
+•	Entity not found
+•	Validation errors
+•	Illegal arguments
+•	Generic server exceptions
+
+Returns a consistent ApiError structure:
 
 {
-  "title": "Build API",
-  "description": "Finish CRUD and test",
-  "status": "IN_PROGRESS",
-  "dueDate": "2025-11-10T18:00:00"
+"timestamp": "...",
+"status": 400,
+"error": "Bad Request",
+"message": "Title cannot be empty",
+"path": "/api/tasks"
 }
 
-TaskResponse (output)
+
+⸻
+
+🔐 JWT Authentication
+
+Implemented features:
+•	Register user → stores encoded password
+•	Login → generates JWT token
+•	Custom UserDetailsService
+•	JwtService (token generation & validation)
+•	JwtAuthenticationFilter
+•	Security config with Spring Security 6 filter chain
+•	AuthenticationManager exposure
+
+All protected endpoints require:
+
+Authorization: Bearer <token>
+
+
+⸻
+
+🧭 Endpoints Overview
+
+Auth
+
+Method	Endpoint	Description
+POST	/api/auth/register	Register a new user
+POST	/api/auth/login	Login and receive JWT token
+
+
+⸻
+
+Tasks
+
+Method	Endpoint	Description
+POST	/api/tasks	Create task
+GET	/api/tasks/{id}	Get task by ID
+GET	/api/tasks	Get all tasks + pagination + sorting + filtering
+PUT	/api/tasks/{id}	Update task
+DELETE	/api/tasks/{id}	Delete task
+
+
+⸻
+
+🔍 Pagination, Sorting & Filtering
+
+Example:
+
+GET /api/tasks?page=0&size=5&sort=dueDate,asc&status=PENDING&search=clean
+
+Supported features:
+•	Pagination (page, size)
+•	Sorting (sort=field,asc|desc)
+•	Filter by status (status=PENDING)
+•	Keyword search on title/description (search=xyz)
+
+⸻
+
+🧪 Testing with Postman
+
+1. Register
+
+POST /api/auth/register
 
 {
-  "id": 1,
-  "title": "Build API",
-  "description": "Finish CRUD and test",
-  "status": "IN_PROGRESS",
-  "dueDate": "2025-11-10T18:00:00",
-  "createdAt": "2025-11-04T17:56:14.130606"
+"username": "john",
+"email": "john@example.com",
+"password": "password123"
 }
 
+2. Login
 
-⸻
-
-❗ Error Handling
-
-All errors return a structured JSON object using ApiError:
+POST /api/auth/login
 
 {
-  "timestamp": "2025-11-04T21:25:38.802134",
-  "status": 404,
-  "error": "Not Found",
-  "message": "Task Not Found with id 99",
-  "path": "/api/tasks/99"
+"username": "john",
+"password": "password123"
 }
 
-Handled globally by:
-✅ @ControllerAdvice
-✅ Custom exception: TaskNotFoundException
-✅ Fallback Exception handler
+Returns:
 
-⸻
+{
+"token": "Bearer eyJhbGciOiJIUzI1NiIs..."
+}
 
-📌 Next Planned Features
+3. Use JWT
 
-✔ Validation for request DTOs (up next)
-⬜ Pagination & filtering
-⬜ User auth (JWT) + roles
-⬜ Swagger / OpenAPI docs
-⬜ Docker Compose (app + DB)
-⬜ Tests (unit + integration)
-⬜ CI/CD + deployment
+Add header:
 
-⸻
+Authorization: Bearer eyJhbGciOiJIUzI1...
 
-🧠 Project Structure (So far)
+Call:
 
-src/main/java/com/taskify/taskify
-│
-├── controller
-│   └── TaskController.java
-│
-├── dto
-│   ├── TaskRequest.java
-│   ├── TaskResponse.java
-│   └── ApiError.java
-│
-├── exception
-│   ├── TaskNotFoundException.java
-│   └── GlobalExceptionHandler.java
-│
-├── model
-│   ├── Task.java
-│   └── Status.java
-│
-├── repository
-│   └── TaskRepository.java
-│
-├── service
-│   ├── TaskService.java
-│   └── impl/TaskServiceImpl.java
-│
-└── TaskifyApplication.java
+GET /api/tasks
 
 
 ⸻
 
-✅ How to Run the App
+🛠️ Service Layer
 
-mvn clean install
-mvn spring-boot:run
+Every entity has:
+•	Service interface
+•	Implementation (TaskServiceImpl, AuthServiceImpl)
+•	Business logic (update, create, validate, etc.)
 
-App runs at:
+⸻
 
-http://localhost:8080
+🧪 Database
+
+Sample tasks inserted into MySQL for testing:
+
+Check MySQL Connection  
+Finish Spring Boot CRUD  
+Add Validation Layer  
+…
+
+
+⸻
+
+📦 Next steps / Future Enhancements
+•	Assign tasks to specific users
+•	Admin roles & access control
+•	Refresh tokens
+•	Unit tests (JUnit + Mockito)
+•	Dockerize Spring Boot app
+•	Deploy to AWS ECS / EC2
+
+⸻
+
+🧁 Conclusion
+
+Taskify is now a solid, real-world style backend project.
+You’ve built:
+
+✔ Secure JWT login
+✔ Role-based users
+✔ Clean DTO architecture
+✔ Global exception handling
+✔ Validation
+✔ Logs
+✔ Pagination, sorting, filtering
+✔ Docker-backed MySQL
+✔ Modular service layer
+✔ Professional controller design
