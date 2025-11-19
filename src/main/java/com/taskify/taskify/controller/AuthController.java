@@ -1,5 +1,7 @@
 package com.taskify.taskify.controller;
 
+import com.taskify.taskify.dto.AuthResponse;
+import com.taskify.taskify.dto.LoginRequest;
 import com.taskify.taskify.dto.RegisterRequest;
 import com.taskify.taskify.service.AuthService;
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
@@ -18,6 +21,13 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
         authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("User registered successfully");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 }
