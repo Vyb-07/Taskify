@@ -15,66 +15,77 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 🧩 1️⃣ Handle Task Not Found (already existed)
-    @ExceptionHandler(TaskNotFoundException.class)
-    public ResponseEntity<ApiError> handleTaskNotFound(TaskNotFoundException ex, WebRequest request) {
-        ApiError error = new ApiError(
-                LocalDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
-                "Not Found",
-                ex.getMessage(),
-                request.getDescription(false).replace("uri=", "")
-        );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
+        // 🧩 1️⃣ Handle Task Not Found (already existed)
+        @ExceptionHandler(TaskNotFoundException.class)
+        public ResponseEntity<ApiError> handleTaskNotFound(TaskNotFoundException ex, WebRequest request) {
+                ApiError error = new ApiError(
+                                LocalDateTime.now(),
+                                HttpStatus.NOT_FOUND.value(),
+                                "Not Found",
+                                ex.getMessage(),
+                                request.getDescription(false).replace("uri=", ""));
+                return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        }
 
-    // 🧩 2️⃣ Handle @Valid body validation errors (POST/PUT)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidationErrors(MethodArgumentNotValidException ex, WebRequest request) {
-        String errorMessages = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(err -> err.getField() + ": " + err.getDefaultMessage())
-                .collect(Collectors.joining("; "));
+        // 🧩 2️⃣ Handle @Valid body validation errors (POST/PUT)
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<ApiError> handleValidationErrors(MethodArgumentNotValidException ex, WebRequest request) {
+                String errorMessages = ex.getBindingResult()
+                                .getFieldErrors()
+                                .stream()
+                                .map(err -> err.getField() + ": " + err.getDefaultMessage())
+                                .collect(Collectors.joining("; "));
 
-        ApiError error = new ApiError(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Validation Error",
-                errorMessages,
-                request.getDescription(false).replace("uri=", "")
-        );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-    }
+                ApiError error = new ApiError(
+                                LocalDateTime.now(),
+                                HttpStatus.BAD_REQUEST.value(),
+                                "Validation Error",
+                                errorMessages,
+                                request.getDescription(false).replace("uri=", ""));
+                return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        }
 
-    // 🧩 3️⃣ Handle parameter-level validation (like @PathVariable or @RequestParam)
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiError> handleConstraintViolations(ConstraintViolationException ex, WebRequest request) {
-        String errorMessages = ex.getConstraintViolations()
-                .stream()
-                .map(v -> v.getPropertyPath() + ": " + v.getMessage())
-                .collect(Collectors.joining("; "));
+        // 🧩 3️⃣ Handle parameter-level validation (like @PathVariable or
+        // @RequestParam)
+        @ExceptionHandler(ConstraintViolationException.class)
+        public ResponseEntity<ApiError> handleConstraintViolations(ConstraintViolationException ex,
+                        WebRequest request) {
+                String errorMessages = ex.getConstraintViolations()
+                                .stream()
+                                .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                                .collect(Collectors.joining("; "));
 
-        ApiError error = new ApiError(
-                LocalDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Constraint Violation",
-                errorMessages,
-                request.getDescription(false).replace("uri=", "")
-        );
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-    }
+                ApiError error = new ApiError(
+                                LocalDateTime.now(),
+                                HttpStatus.BAD_REQUEST.value(),
+                                "Constraint Violation",
+                                errorMessages,
+                                request.getDescription(false).replace("uri=", ""));
+                return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        }
 
-    // 🧩 4️⃣ Catch any unexpected exception (fallback)
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleGenericException(Exception ex, WebRequest request) {
-        ApiError error = new ApiError(
-                LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
-                "Something went wrong. Please try again later.",
-                request.getDescription(false).replace("uri=", "")
-        );
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+        // 🧩 4️⃣ Handle Authentication Failures
+        @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+        public ResponseEntity<ApiError> handleBadCredentials(
+                        org.springframework.security.authentication.BadCredentialsException ex, WebRequest request) {
+                ApiError error = new ApiError(
+                                LocalDateTime.now(),
+                                HttpStatus.UNAUTHORIZED.value(),
+                                "Unauthorized",
+                                "Invalid username or password",
+                                request.getDescription(false).replace("uri=", ""));
+                return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        }
+
+        // 🧩 5️⃣ Catch any unexpected exception (fallback)
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ApiError> handleGenericException(Exception ex, WebRequest request) {
+                ApiError error = new ApiError(
+                                LocalDateTime.now(),
+                                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                                "Internal Server Error",
+                                "Something went wrong. Please try again later.",
+                                request.getDescription(false).replace("uri=", ""));
+                return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 }
