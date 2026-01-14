@@ -1,14 +1,21 @@
 package com.taskify.taskify.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDateTime;
 
 /**
  * Immutable DTO representing the structure of API error responses.
  */
+@Schema(description = "Standard error response object")
 public record ApiError(
-        LocalDateTime timestamp,
-        int status,
-        String error,
-        String message,
-        String path
-) {}
+                @Schema(description = "Timestamp of the error", example = "2026-01-14T23:07:31") LocalDateTime timestamp,
+
+                @Schema(description = "HTTP status code", example = "400") int status,
+
+                @Schema(description = "Error type", example = "Bad Request") String error,
+
+                @Schema(description = "Detailed error message", example = "Validation failed for object='taskRequest'. Error count: 1") String message,
+
+                @Schema(description = "API path where the error occurred", example = "/api/tasks") String path) {
+}
