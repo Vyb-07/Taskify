@@ -77,6 +77,17 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
         }
 
+        @ExceptionHandler(TokenException.class)
+        public ResponseEntity<ApiError> handleTokenException(TokenException ex, WebRequest request) {
+                ApiError error = new ApiError(
+                                LocalDateTime.now(),
+                                HttpStatus.UNAUTHORIZED.value(),
+                                "Unauthorized",
+                                ex.getMessage(),
+                                request.getDescription(false).replace("uri=", ""));
+                return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        }
+
         // 🧩 5️⃣ Catch any unexpected exception (fallback)
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ApiError> handleGenericException(Exception ex, WebRequest request) {
