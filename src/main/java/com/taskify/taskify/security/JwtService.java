@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
@@ -27,7 +26,8 @@ public class JwtService {
     private long jwtExpirationMs;
 
     /**
-     * Generate token for given userDetails. We allow passing extra claims map if needed.
+     * Generate token for given userDetails. We allow passing extra claims map if
+     * needed.
      */
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         Date now = new Date();
@@ -46,7 +46,11 @@ public class JwtService {
      * Convenience overload when no extra claims are required.
      */
     public String generateToken(UserDetails userDetails) {
-        return generateToken(Map.of(), userDetails);
+        Map<String, Object> claims = Map.of(
+                "roles", userDetails.getAuthorities().stream()
+                        .map(grantedAuthority -> grantedAuthority.getAuthority())
+                        .collect(java.util.stream.Collectors.toList()));
+        return generateToken(claims, userDetails);
     }
 
     /**
@@ -90,7 +94,8 @@ public class JwtService {
     }
 
     /**
-     * Build a SecretKey from configured secret. We expect the secret to be base64 (or raw).
+     * Build a SecretKey from configured secret. We expect the secret to be base64
+     * (or raw).
      * Uses io.jsonwebtoken.security.Keys to produce a safe HMAC key.
      */
     private SecretKey getSigningKey() {

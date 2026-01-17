@@ -24,22 +24,32 @@ public class Task {
 
     private LocalDateTime createdAt;
 
-    //Default constructor (required by JPA)
-    public Task() {}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User owner;
+
+    // Default constructor (required by JPA)
+    public Task() {
+    }
 
     // Constructor for convenience
-    public Task(String title, String description, Status status, LocalDateTime dueDate){
+    public Task(String title, String description, Status status, LocalDateTime dueDate, User owner) {
         this.title = title;
         this.description = description;
         this.status = status;
         this.dueDate = dueDate;
+        this.owner = owner;
         this.createdAt = LocalDateTime.now();
     }
 
-    //Getters and setters
+    // Getters and setters
 
     public long getId() {
         return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -80,5 +90,13 @@ public class Task {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 }

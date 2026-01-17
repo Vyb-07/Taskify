@@ -5,12 +5,12 @@ import com.taskify.taskify.dto.LoginRequest;
 import com.taskify.taskify.dto.RegisterRequest;
 import com.taskify.taskify.dto.TokenRefreshRequest;
 import com.taskify.taskify.exception.TokenException;
-import com.taskify.taskify.model.RefreshToken;
 import com.taskify.taskify.model.Role;
 import com.taskify.taskify.model.User;
 import com.taskify.taskify.repository.RoleRepository;
 import com.taskify.taskify.repository.UserRepository;
 import com.taskify.taskify.security.JwtService;
+import com.taskify.taskify.security.SecurityConstants;
 import com.taskify.taskify.service.AuthService;
 import com.taskify.taskify.service.RefreshTokenService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -64,8 +64,8 @@ public class AuthServiceImpl implements AuthService {
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         User user = new User(request.getUsername(), request.getEmail(), encodedPassword);
 
-        Role role = roleRepository.findByName("ROLE_USER")
-                .orElseGet(() -> roleRepository.save(new Role("ROLE_USER")));
+        Role role = roleRepository.findByName(SecurityConstants.ROLE_USER)
+                .orElseGet(() -> roleRepository.save(new Role(SecurityConstants.ROLE_USER)));
 
         user.getRoles().add(role);
 
