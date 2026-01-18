@@ -6,9 +6,11 @@ import com.taskify.taskify.dto.RegisterRequest;
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.model.Role;
 import com.taskify.taskify.model.Status;
+import com.taskify.taskify.repository.RefreshTokenRepository;
 import com.taskify.taskify.repository.RoleRepository;
 import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.UserRepository;
+import com.taskify.taskify.service.RateLimitService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,98 +34,110 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class TaskControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+        @Autowired
+        private ObjectMapper objectMapper;
 
-    @Autowired
-    private UserRepository userRepository;
+        @Autowired
+        private UserRepository userRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+        @Autowired
+        private RoleRepository roleRepository;
 
-    @Autowired
-    private TaskRepository taskRepository;
+        @Autowired
+        private RefreshTokenRepository refreshTokenRepository;
 
-    private String jwtToken;
+        @Autowired
+        private RateLimitService rateLimitService;
 
-    @BeforeEach
-    void setUp() throws Exception {
-        userRepository.deleteAll();
-        taskRepository.deleteAll();
-        roleRepository.deleteAll();
-        roleRepository.save(new Role("ROLE_USER"));
+        @Autowired
+        private TaskRepository taskRepository;
 
-        // Register and login to get JWT
-        RegisterRequest registerRequest = new RegisterRequest("testuser", "test@example.com", "password");
-        mockMvc.perform(post("/api/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(registerRequest)))
-                .andExpect(status().isCreated());
+        private String jwtToken;
 
-        LoginRequest loginRequest = new LoginRequest("testuser", "password");
-        MvcResult result = mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isOk())
-                .andReturn();
+        @BeforeEach
+        void setUp() throws Exception {
+                rateLimitService.clearBuckets();
+                refreshTokenRepository.deleteAll();
+                taskRepository.deleteAll();
+                userRepository.deleteAll();
+                roleRepository.findByName("ROLE_USER")
+                                .orElseGet(() -> roleRepository.save(new Role("ROLE_USER")));
 
-        String responseBody = result.getResponse().getContentAsString();
-        Map<String, String> responseMap = objectMapper.readValue(responseBody, Map.class);
-        jwtToken = "Bearer " + responseMap.get("token");
-    }
+                // Register and login to get JWT
+                RegisterRequest registerRequest = new RegisterRequest("testuser", "test@example.com", "password");
+                mockMvc.perform(post("/api/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(registerRequest)))
+                                .andExpect(status().isCreated());
 
-    @Test
-    void shouldCreateTaskSuccessfully() throws Exception {
-        TaskRequest request = new TaskRequest();
-        request.setTitle("Integration Test Task");
-        request.setDescription("Details");
-        request.setStatus(Status.PENDING);
-        request.setDueDate(LocalDateTime.now().plusDays(1));
+                LoginRequest loginRequest = new LoginRequest("testuser", "password");
+                MvcResult result = mockMvc.perform(post("/api/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(loginRequest)))
+                                .andExpect(status().isOk())
+                                .andReturn();
 
-        mockMvc.perform(post("/api/tasks")
-                .header("Authorization", jwtToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.title").value("Integration Test Task"));
-    }
+                String responseBody = result.getResponse().getContentAsString();
+                Map<String, String> responseMap = objectMapper.readValue(responseBody,
+                                new com.fasterxml.jackson.core.type.TypeReference<Map<String, String>>() {
+                                });
+                jwtToken = "Bearer " + responseMap.get("token");
+        }
 
-    @Test
-    void shouldReturn401WhenJwtIsMissing() throws Exception {
-        mockMvc.perform(get("/api/tasks"))
-                .andExpect(status().isForbidden()); // Spring Security default for unauthorized
-    }
+        @Test
+        void shouldCreateTaskSuccessfully() throws Exception {
+                TaskRequest request = new TaskRequest();
+                request.setTitle("Integration Test Task");
+                request.setDescription("Details");
+                request.setStatus(Status.PENDING);
+                request.setDueDate(LocalDateTime.now().plusDays(1));
 
-    @Test
-    void shouldGetAllTasks() throws Exception {
-        mockMvc.perform(get("/api/tasks")
-                .header("Authorization", jwtToken))
-                .andExpect(status().isOk());
-    }
+                mockMvc.perform(post("/api/tasks")
+                                .header("Authorization", jwtToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.title").value("Integration Test Task"));
+        }
 
-    @Test
-    void shouldGetTaskById() throws Exception {
-        // First create a task
-        TaskRequest request = new TaskRequest();
-        request.setTitle("Task 1");
-        request.setStatus(Status.PENDING);
+        @Test
+        void shouldReturn401WhenJwtIsMissing() throws Exception {
+                mockMvc.perform(get("/api/tasks"))
+                                .andExpect(status().isForbidden()); // Spring Security default for unauthorized
+        }
 
-        MvcResult result = mockMvc.perform(post("/api/tasks")
-                .header("Authorization", jwtToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andReturn();
+        @Test
+        void shouldGetAllTasks() throws Exception {
+                mockMvc.perform(get("/api/tasks")
+                                .header("Authorization", jwtToken))
+                                .andExpect(status().isOk());
+        }
 
-        String responseBody = result.getResponse().getContentAsString();
-        Map<String, Object> taskMap = objectMapper.readValue(responseBody, Map.class);
-        Integer id = (Integer) taskMap.get("id");
+        @Test
+        void shouldGetTaskById() throws Exception {
+                // First create a task
+                TaskRequest request = new TaskRequest();
+                request.setTitle("Task 1");
+                request.setStatus(Status.PENDING);
 
-        mockMvc.perform(get("/api/tasks/" + id)
-                .header("Authorization", jwtToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Task 1"));
-    }
+                MvcResult result = mockMvc.perform(post("/api/tasks")
+                                .header("Authorization", jwtToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andReturn();
+
+                String responseBody = result.getResponse().getContentAsString();
+                Map<String, Object> taskMap = objectMapper.readValue(responseBody,
+                                new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {
+                                });
+                Integer id = (Integer) taskMap.get("id");
+
+                mockMvc.perform(get("/api/tasks/" + id)
+                                .header("Authorization", jwtToken))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.title").value("Task 1"));
+        }
 }

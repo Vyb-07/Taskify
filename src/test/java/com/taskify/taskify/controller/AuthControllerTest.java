@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taskify.taskify.dto.LoginRequest;
 import com.taskify.taskify.dto.RegisterRequest;
 import com.taskify.taskify.model.Role;
+import com.taskify.taskify.repository.RefreshTokenRepository;
 import com.taskify.taskify.repository.RoleRepository;
 import com.taskify.taskify.repository.UserRepository;
+import com.taskify.taskify.service.RateLimitService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +40,19 @@ public class AuthControllerTest {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Autowired
+    private RateLimitService rateLimitService;
+
     @BeforeEach
     void setUp() {
+        rateLimitService.clearBuckets();
+        refreshTokenRepository.deleteAll();
         userRepository.deleteAll();
-        roleRepository.deleteAll();
-        roleRepository.save(new Role("ROLE_USER"));
+        roleRepository.findByName("ROLE_USER")
+                .orElseGet(() -> roleRepository.save(new Role("ROLE_USER")));
     }
 
     @Test
