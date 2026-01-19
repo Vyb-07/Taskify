@@ -8,6 +8,7 @@ import com.taskify.taskify.model.Task;
 import com.taskify.taskify.model.User;
 import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.UserRepository;
+import com.taskify.taskify.service.AuditService;
 import com.taskify.taskify.service.impl.TaskServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,9 @@ public class TaskServiceTest {
 
     @Mock
     private Authentication authentication;
+
+    @Mock
+    private AuditService auditService;
 
     @InjectMocks
     private TaskServiceImpl taskService;

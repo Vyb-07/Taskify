@@ -3,12 +3,15 @@ package com.taskify.taskify.service.impl;
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
 import com.taskify.taskify.exception.TaskNotFoundException;
+import com.taskify.taskify.model.AuditAction;
+import com.taskify.taskify.model.AuditTargetType;
 import com.taskify.taskify.model.Status;
 import com.taskify.taskify.model.Task;
 import com.taskify.taskify.model.User;
 import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.UserRepository;
 import com.taskify.taskify.security.SecurityConstants;
+import com.taskify.taskify.service.AuditService;
 import com.taskify.taskify.service.TaskService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,10 +29,12 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final AuditService auditService;
 
-    public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository, AuditService auditService) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.auditService = auditService;
     }
 
     @Override
@@ -44,6 +49,8 @@ public class TaskServiceImpl implements TaskService {
                 currentUser);
 
         Task savedTask = taskRepository.save(task);
+
+        auditService.logEvent(AuditAction.TASK_CREATE, AuditTargetType.TASK, String.valueOf(savedTask.getId()), null);
 
         return mapToResponse(savedTask);
     }
@@ -87,6 +94,11 @@ public class TaskServiceImpl implements TaskService {
 
         Task updatedTask = taskRepository.save(existingTask);
 
+        User currentUser = getCurrentUser();
+        boolean isAdminAction = isAdmin(currentUser) && existingTask.getOwner().getId() != currentUser.getId();
+        auditService.logEvent(AuditAction.TASK_UPDATE, AuditTargetType.TASK, String.valueOf(updatedTask.getId()),
+                isAdminAction ? java.util.Map.of("adminAction", true) : null);
+
         return mapToResponse(updatedTask);
     }
 
@@ -98,7 +110,13 @@ public class TaskServiceImpl implements TaskService {
 
         validateOwnership(task);
 
+        User currentUser = getCurrentUser();
+        boolean isAdminAction = isAdmin(currentUser) && task.getOwner().getId() != currentUser.getId();
+
         taskRepository.delete(task);
+
+        auditService.logEvent(AuditAction.TASK_DELETE, AuditTargetType.TASK, String.valueOf(id),
+                isAdminAction ? java.util.Map.of("adminAction", true) : null);
     }
 
     @Override

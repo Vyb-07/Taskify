@@ -8,12 +8,25 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
+import com.taskify.taskify.service.AuditService;
+import com.taskify.taskify.model.AuditAction;
+import com.taskify.taskify.model.AuditTargetType;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+        private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+        private final AuditService auditService;
+
+        public GlobalExceptionHandler(AuditService auditService) {
+                this.auditService = auditService;
+        }
 
         // 🧩 1️⃣ Handle Task Not Found (already existed)
         @ExceptionHandler(TaskNotFoundException.class)
@@ -24,6 +37,7 @@ public class GlobalExceptionHandler {
                                 "Not Found",
                                 ex.getMessage(),
                                 request.getDescription(false).replace("uri=", ""));
+                logger.warn("Task not found: {}", ex.getMessage());
                 return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
 
@@ -74,6 +88,12 @@ public class GlobalExceptionHandler {
                                 "Unauthorized",
                                 "Invalid username or password",
                                 request.getDescription(false).replace("uri=", ""));
+
+                String username = request.getParameter("username"); // Might be null depending on how it's sent
+                auditService.logEvent(AuditAction.LOGIN_FAILURE, AuditTargetType.AUTH, null, username,
+                                java.util.Map.of("reason", "Bad credentials"));
+
+                logger.warn("Authentication failure for user {}: {}", username, ex.getMessage());
                 return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
         }
 
@@ -85,6 +105,7 @@ public class GlobalExceptionHandler {
                                 "Unauthorized",
                                 ex.getMessage(),
                                 request.getDescription(false).replace("uri=", ""));
+                logger.warn("Token error: {}", ex.getMessage());
                 return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
         }
 
@@ -96,6 +117,7 @@ public class GlobalExceptionHandler {
                                 "Too Many Requests",
                                 ex.getMessage(),
                                 request.getDescription(false).replace("uri=", ""));
+                logger.warn("Rate limit exceeded: {}", ex.getMessage());
                 return new ResponseEntity<>(error, HttpStatus.TOO_MANY_REQUESTS);
         }
 
@@ -108,6 +130,7 @@ public class GlobalExceptionHandler {
                                 "Internal Server Error",
                                 "Something went wrong. Please try again later.",
                                 request.getDescription(false).replace("uri=", ""));
+                logger.error("Unexpected error occurred", ex); // Requirement: Log errors with stack traces
                 return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 }
