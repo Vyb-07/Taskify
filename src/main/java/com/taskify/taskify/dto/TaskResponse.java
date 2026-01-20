@@ -1,5 +1,6 @@
 package com.taskify.taskify.dto;
 
+import com.taskify.taskify.model.Priority;
 import com.taskify.taskify.model.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -23,6 +24,9 @@ public class TaskResponse {
     @Schema(description = "Current status of the task", example = "IN_PROGRESS")
     private Status status;
 
+    @Schema(description = "Priority of the task", example = "MEDIUM")
+    private Priority priority;
+
     @Schema(description = "Due date for the task", example = "2026-12-31T23:59:59")
     private LocalDateTime dueDate;
 
@@ -32,12 +36,14 @@ public class TaskResponse {
     public TaskResponse() {
     }
 
-    public TaskResponse(long id, String title, String description, Status status, LocalDateTime dueDate,
+    public TaskResponse(long id, String title, String description, Status status, Priority priority,
+            LocalDateTime dueDate,
             LocalDateTime createdAt) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.status = status;
+        this.priority = priority;
         this.dueDate = dueDate;
         this.createdAt = createdAt;
     }
@@ -57,6 +63,10 @@ public class TaskResponse {
 
     public Status getStatus() {
         return status;
+    }
+
+    public Priority getPriority() {
+        return priority;
     }
 
     public LocalDateTime getDueDate() {

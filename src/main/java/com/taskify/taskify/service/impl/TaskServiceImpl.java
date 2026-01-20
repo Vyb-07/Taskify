@@ -3,26 +3,23 @@ package com.taskify.taskify.service.impl;
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
 import com.taskify.taskify.exception.TaskNotFoundException;
-import com.taskify.taskify.model.AuditAction;
-import com.taskify.taskify.model.AuditTargetType;
-import com.taskify.taskify.model.Status;
-import com.taskify.taskify.model.Task;
-import com.taskify.taskify.model.User;
+import com.taskify.taskify.model.*;
 import com.taskify.taskify.repository.TaskRepository;
+import com.taskify.taskify.repository.TaskSpecification;
 import com.taskify.taskify.repository.UserRepository;
 import com.taskify.taskify.security.SecurityConstants;
 import com.taskify.taskify.service.AuditService;
 import com.taskify.taskify.service.TaskService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -45,6 +42,7 @@ public class TaskServiceImpl implements TaskService {
                 request.getTitle(),
                 request.getDescription(),
                 request.getStatus(),
+                request.getPriority(),
                 request.getDueDate(),
                 currentUser);
 
@@ -53,20 +51,6 @@ public class TaskServiceImpl implements TaskService {
         auditService.logEvent(AuditAction.TASK_CREATE, AuditTargetType.TASK, String.valueOf(savedTask.getId()), null);
 
         return mapToResponse(savedTask);
-    }
-
-    @Override
-    public List<TaskResponse> getAllTasks() {
-        User user = getCurrentUser();
-        List<Task> tasks;
-        if (isAdmin(user)) {
-            tasks = taskRepository.findAll();
-        } else {
-            tasks = taskRepository.findByOwner(user);
-        }
-        return tasks.stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
     }
 
     @Override
@@ -113,60 +97,54 @@ public class TaskServiceImpl implements TaskService {
         User currentUser = getCurrentUser();
         boolean isAdminAction = isAdmin(currentUser) && task.getOwner().getId() != currentUser.getId();
 
-        taskRepository.delete(task);
+        task.setDeleted(true);
+        taskRepository.save(task);
 
         auditService.logEvent(AuditAction.TASK_DELETE, AuditTargetType.TASK, String.valueOf(id),
                 isAdminAction ? java.util.Map.of("adminAction", true) : null);
     }
 
     @Override
-    public Page<TaskResponse> getAllTasks(Pageable pageable) {
-        User user = getCurrentUser();
-        Page<Task> tasks;
-        if (isAdmin(user)) {
-            tasks = taskRepository.findAll(pageable);
-        } else {
-            tasks = taskRepository.findByOwner(user, pageable);
+    public Page<TaskResponse> getAllTasks(
+            Status status,
+            Priority priority,
+            LocalDateTime fromDate,
+            LocalDateTime toDate,
+            LocalDateTime dueFrom,
+            LocalDateTime dueTo,
+            String keyword,
+            boolean includeDeleted,
+            Pageable pageable) {
+
+        User currentUser = getCurrentUser();
+        boolean isAdmin = isAdmin(currentUser);
+
+        Specification<Task> spec = Specification.where(null);
+
+        // 1. Ownership Visibility
+        if (!isAdmin) {
+            spec = spec.and(TaskSpecification.withOwner(currentUser));
         }
+
+        // 2. Soft Delete Visibility
+        if (includeDeleted) {
+            if (!isAdmin) {
+                throw new AccessDeniedException("Only admins can fetch deleted tasks");
+            }
+            spec = spec.and(TaskSpecification.isDeleted());
+        } else {
+            spec = spec.and(TaskSpecification.isNotDeleted());
+        }
+
+        // 3. Optional Filters
+        spec = spec.and(TaskSpecification.withStatus(status))
+                .and(TaskSpecification.withPriority(priority))
+                .and(TaskSpecification.withKeyword(keyword))
+                .and(TaskSpecification.withCreatedBetween(fromDate, toDate))
+                .and(TaskSpecification.withDueBetween(dueFrom, dueTo));
+
+        Page<Task> tasks = taskRepository.findAll(spec, pageable);
         return tasks.map(this::mapToResponse);
-    }
-
-    @Override
-    public List<TaskResponse> getTasksByFilter(String title, Status status) {
-        User user = getCurrentUser();
-        List<Task> tasks;
-
-        if (isAdmin(user)) {
-            if (title != null && status != null) {
-                tasks = taskRepository.findByStatusAndTitleContainingIgnoreCase(status, title);
-            } else if (status != null) {
-                // Fixed missing findByStatus in repository
-                tasks = taskRepository.findAll().stream()
-                        .filter(t -> t.getStatus() == status)
-                        .collect(Collectors.toList());
-            } else if (title != null) {
-                // Fixed missing findByTitleContainingIgnoreCase in repository
-                tasks = taskRepository.findAll().stream()
-                        .filter(t -> t.getTitle().toLowerCase().contains(title.toLowerCase()))
-                        .collect(Collectors.toList());
-            } else {
-                tasks = taskRepository.findAll();
-            }
-        } else {
-            if (title != null && status != null) {
-                tasks = taskRepository.findByOwnerAndStatusAndTitleContainingIgnoreCase(user, status, title);
-            } else if (status != null) {
-                tasks = taskRepository.findByOwnerAndStatus(user, status);
-            } else if (title != null) {
-                tasks = taskRepository.findByOwnerAndTitleContainingIgnoreCase(user, title);
-            } else {
-                tasks = taskRepository.findByOwner(user);
-            }
-        }
-
-        return tasks.stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
     }
 
     private User getCurrentUser() {
@@ -194,6 +172,7 @@ public class TaskServiceImpl implements TaskService {
                 task.getTitle(),
                 task.getDescription(),
                 task.getStatus(),
+                task.getPriority(),
                 task.getDueDate(),
                 task.getCreatedAt());
     }

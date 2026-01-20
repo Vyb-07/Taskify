@@ -1,5 +1,6 @@
 package com.taskify.taskify.dto;
 
+import com.taskify.taskify.model.Priority;
 import com.taskify.taskify.model.Status;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
@@ -27,6 +28,9 @@ public class TaskRequest {
 
     @Schema(description = "Current status of the task", example = "TODO")
     private Status status;
+
+    @Schema(description = "Priority of the task", example = "MEDIUM")
+    private Priority priority;
 
     @Schema(description = "Due date for the task", example = "2026-12-31T23:59:59")
     @FutureOrPresent(message = "dueDate cannot be in the past")
@@ -58,6 +62,14 @@ public class TaskRequest {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
     }
 
     public LocalDateTime getDueDate() {

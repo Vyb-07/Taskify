@@ -22,6 +22,11 @@ public class Task {
 
     private LocalDateTime dueDate;
 
+    @Enumerated(EnumType.STRING)
+    private Priority priority = Priority.MEDIUM;
+
+    private boolean deleted = false;
+
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,13 +38,15 @@ public class Task {
     }
 
     // Constructor for convenience
-    public Task(String title, String description, Status status, LocalDateTime dueDate, User owner) {
+    public Task(String title, String description, Status status, Priority priority, LocalDateTime dueDate, User owner) {
         this.title = title;
         this.description = description;
         this.status = status;
+        this.priority = priority != null ? priority : Priority.MEDIUM;
         this.dueDate = dueDate;
         this.owner = owner;
         this.createdAt = LocalDateTime.now();
+        this.deleted = false;
     }
 
     // Getters and setters
@@ -98,5 +105,21 @@ public class Task {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

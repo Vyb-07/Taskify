@@ -2,6 +2,7 @@ package com.taskify.taskify.controller;
 
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
+import com.taskify.taskify.model.Priority;
 import com.taskify.taskify.model.Status;
 import com.taskify.taskify.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -42,49 +43,29 @@ public class TaskController {
         return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Get all tasks (Paged)", description = "Returns a paginated list of tasks")
-    @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully")
-    @ApiResponse(responseCode = "401", description = "Unauthorized access")
-    @GetMapping("/paged")
-    public ResponseEntity<Page<TaskResponse>> getAllTasksPaged(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String direction) {
-        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        Page<TaskResponse> tasks = taskService.getAllTasks(pageable);
-        return ResponseEntity.ok(tasks);
-    }
-
-    @Operation(summary = "Get all tasks", description = "Returns a list of all tasks")
+    @Operation(summary = "Get tasks with filters", description = "Returns a paginated list of tasks filtered by various criteria")
     @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully")
     @ApiResponse(responseCode = "401", description = "Unauthorized access")
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> getAllTasks() {
-        List<TaskResponse> tasks = taskService.getAllTasks();
-        return ResponseEntity.ok(tasks);
-    }
+    public ResponseEntity<Page<TaskResponse>> getTasks(
+            @RequestParam(required = false) Status status,
+            @RequestParam(required = false) Priority priority,
+            @RequestParam(required = false) LocalDateTime fromDate,
+            @RequestParam(required = false) LocalDateTime toDate,
+            @RequestParam(required = false) LocalDateTime dueFrom,
+            @RequestParam(required = false) LocalDateTime dueTo,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "false") boolean includeDeleted,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
 
-    @Operation(summary = "Get task by ID", description = "Returns a single task by its identifier")
-    @ApiResponse(responseCode = "200", description = "Task found")
-    @ApiResponse(responseCode = "401", description = "Unauthorized access")
-    @ApiResponse(responseCode = "404", description = "Task not found")
-    @GetMapping("/{id}")
-    public ResponseEntity<TaskResponse> getTaskById(@PathVariable Long id) {
-        TaskResponse task = taskService.getTaskById(id);
-        return ResponseEntity.ok(task); // 200 OK
-    }
+        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
 
-    @Operation(summary = "Search tasks", description = "Filters tasks by title and status")
-    @ApiResponse(responseCode = "200", description = "Search results retrieved")
-    @ApiResponse(responseCode = "401", description = "Unauthorized access")
-    @GetMapping("/search")
-    public ResponseEntity<List<TaskResponse>> searchTasks(
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) Status status) {
-        List<TaskResponse> tasks = taskService.getTasksByFilter(title, status);
+        Page<TaskResponse> tasks = taskService.getAllTasks(status, priority, fromDate, toDate, dueFrom, dueTo, keyword,
+                includeDeleted, pageable);
         return ResponseEntity.ok(tasks);
     }
 

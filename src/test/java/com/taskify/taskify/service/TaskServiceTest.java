@@ -3,6 +3,7 @@ package com.taskify.taskify.service;
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
 import com.taskify.taskify.exception.TaskNotFoundException;
+import com.taskify.taskify.model.Priority;
 import com.taskify.taskify.model.Status;
 import com.taskify.taskify.model.Task;
 import com.taskify.taskify.model.User;
@@ -59,7 +60,8 @@ public class TaskServiceTest {
         user = new User("testuser", "test@example.com", "password");
         user.setId(1L);
 
-        task = new Task("Test Task", "Test Description", Status.PENDING, LocalDateTime.now().plusDays(1), user);
+        task = new Task("Test Task", "Test Description", Status.PENDING, Priority.MEDIUM,
+                LocalDateTime.now().plusDays(1), user);
         task.setId(1L);
 
         taskRequest = new TaskRequest();
@@ -123,11 +125,12 @@ public class TaskServiceTest {
     void shouldDeleteTaskSuccessfully() {
         mockAuthentication("testuser");
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
-        doNothing().when(taskRepository).delete(task);
+        when(taskRepository.save(any(Task.class))).thenReturn(task);
 
         taskService.deleteTask(1L);
 
-        verify(taskRepository, times(1)).delete(task);
+        assertTrue(task.isDeleted());
+        verify(taskRepository, times(1)).save(task);
     }
 
     @Test

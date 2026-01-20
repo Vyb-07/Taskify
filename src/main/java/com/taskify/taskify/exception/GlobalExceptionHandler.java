@@ -109,6 +109,19 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
         }
 
+        @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+        public ResponseEntity<ApiError> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex,
+                        WebRequest request) {
+                ApiError error = new ApiError(
+                                LocalDateTime.now(),
+                                HttpStatus.FORBIDDEN.value(),
+                                "Forbidden",
+                                ex.getMessage(),
+                                request.getDescription(false).replace("uri=", ""));
+                logger.warn("Access denied: {}", ex.getMessage());
+                return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+        }
+
         @ExceptionHandler(RateLimitExceededException.class)
         public ResponseEntity<ApiError> handleRateLimitExceeded(RateLimitExceededException ex, WebRequest request) {
                 ApiError error = new ApiError(
