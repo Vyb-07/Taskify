@@ -1,39 +1,23 @@
-Taskify – Production-Ready Spring Boot Task Management API
+# Taskify – Production-Ready Spring Boot Task Management API
 
-Taskify is a production-grade Task Management REST API built with Spring Boot 3 and Java 21, designed to demonstrate how real backend systems are structured, secured, tested, and operated.
+Taskify is a professional-grade Task Management REST API built with Spring Boot 3 and Java 21. It is engineered to demonstrate industry-standard backend practices including secure authentication, role-based authorization, observability, and performance optimization.
 
-This is not a tutorial CRUD project.
-It is a deliberately engineered backend that evolves feature-by-feature using industry-grade practices: authentication, authorization, observability, performance optimization, and safety.
+## Tech Stack
 
-🚀 Tech Stack
+- Java 21
+- Spring Boot 3.5.7
+- Spring Security 6 (JWT-based)
+- Spring Data JPA (Hibernate)
+- MySQL 8
+- Caffeine (In-memory caching)
+- Bucket4j (Rate limiting)
+- Springdoc OpenAPI 2.8
+- JUnit 5 & Mockito
+- Docker
 
-Java 21
+## Project Structure
 
-Spring Boot 3
-
-Spring Web
-
-Spring Data JPA (Hibernate)
-
-Spring Security 6
-
-JWT (Access + Refresh Tokens)
-
-MySQL 8 (Dockerized)
-
-OpenAPI / Swagger
-
-Bucket4j (Rate Limiting)
-
-Spring Cache + Caffeine
-
-SLF4J + Logback (Structured Logging)
-
-JUnit 5, Mockito, MockMvc
-
-Docker
-
-🧱 Project Structure
+```
 src/main/java/com/taskify/taskify
 ├── config/
 │   ├── CacheConfig.java
@@ -41,11 +25,9 @@ src/main/java/com/taskify/taskify
 │   ├── SecurityBeansConfig.java
 │   ├── SecurityConfig.java
 │   └── TaskCacheKeyGenerator.java
-│
 ├── controller/
 │   ├── AuthController.java
 │   └── TaskController.java
-│
 ├── dto/
 │   ├── ApiError.java
 │   ├── AuthResponse.java
@@ -54,13 +36,11 @@ src/main/java/com/taskify/taskify
 │   ├── TaskRequest.java
 │   ├── TaskResponse.java
 │   └── TokenRefreshRequest.java
-│
 ├── exception/
 │   ├── GlobalExceptionHandler.java
 │   ├── RateLimitExceededException.java
 │   ├── TaskNotFoundException.java
 │   └── TokenException.java
-│
 ├── model/
 │   ├── AuditAction.java
 │   ├── AuditLog.java
@@ -71,7 +51,6 @@ src/main/java/com/taskify/taskify
 │   ├── Status.java
 │   ├── Task.java
 │   └── User.java
-│
 ├── repository/
 │   ├── AuditLogRepository.java
 │   ├── RefreshTokenRepository.java
@@ -79,105 +58,103 @@ src/main/java/com/taskify/taskify
 │   ├── TaskRepository.java
 │   ├── TaskSpecification.java
 │   └── UserRepository.java
-│
 ├── security/
 │   ├── CorrelationIdFilter.java
 │   ├── JwtAuthenticationFilter.java
 │   ├── JwtService.java
-│   └── RateLimitFilter.java
-│
+│   ├── RateLimitFilter.java
+│   ├── RequestLoggingFilter.java
+│   └── SecurityConstants.java
 ├── service/
 │   ├── AuditService.java
 │   ├── AuthService.java
 │   ├── RateLimitService.java
 │   ├── RefreshTokenService.java
 │   ├── TaskService.java
-│   ├── impl/
-│   │   ├── AuditServiceImpl.java
-│   │   ├── AuthServiceImpl.java
-│   │   ├── RefreshTokenServiceImpl.java
-│   │   ├── TaskServiceImpl.java
-│   │   └── UserDetailsServiceImpl.java
-│
+│   └── impl/
+│       ├── AuditServiceImpl.java
+│       ├── AuthServiceImpl.java
+│       ├── RefreshTokenServiceImpl.java
+│       ├── TaskServiceImpl.java
+│       └── UserDetailsServiceImpl.java
 └── TaskifyApplication.java
+```
 
-Design Principles
+## Authentication & Authorization
 
-Thin controllers
+### JWT Implementation
+- Secure login with short-lived access tokens and long-lived refresh tokens.
+- Refresh token rotation and database-backed revocation.
+- Secure logout mechanism to invalidate active sessions.
 
-Business logic in services
+### Authorization Model
+- Role-Based Access Control (RBAC): Support for `ROLE_USER` and `ROLE_ADMIN`.
+- Ownership Enforcement: Regular users can only access and manage their own tasks.
+- Admin Visibility: Administrators have full system-wide visibility, including soft-deleted tasks.
 
-Authorization enforced server-side
+## Security & Reliability
 
-DTO-driven API contracts
+- Rate Limiting: Implemented via Bucket4j with per-user (authenticated) and per-IP (anonymous) limits.
+- Soft Deletes: Tasks are soft-deleted to allow for restoration and auditing.
+- Encryption: BCrypt password hashing for secure user credential storage.
+- Correlation ID: Middleware to track requests across filters and services for debugging.
 
-Infrastructure concerns isolated
+## Core Features
 
-Testability as a first-class concern
+- Advanced querying using JPA Specifications
+- Unified task search endpoint with filtering, pagination, and sorting
+- Asynchronous audit logging of business-critical events (authentication and task lifecycle)
 
-🔐 Authentication & Authorization
-JWT Authentication
+## Caching & Performance
 
-Short-lived Access Tokens
+- Caffeine-based in-memory caching for task reads
+- Cache keys scoped by user, role, and query parameters
+- Targeted cache invalidation strategy to maintain consistency without global eviction
 
-Long-lived Refresh Tokens
+## Observability
 
-Refresh tokens stored in DB and revocable
+- Structured Logging: Consistent logging with request context (Correlation ID, User ID).
+- Audit Logs: Database-backed audit trails for all administrative and authentication actions.
+- Debug Level Caching: Cache hits and misses monitored without logging sensitive payloads.
 
-Secure logout invalidates refresh tokens
+## Testing Strategy
 
-Role-Based Access Control
+- Unit Testing: Business logic coverage for services using Mockito.
+- Integration Testing:
+    - Web layer testing with MockMvc.
+    - JWT and Security flow validation.
+    - Caching behavior and invalidation logic.
+    - Advanced query and ownership enforcement tests.
 
-Roles: ROLE_USER, ROLE_ADMIN
+## API Endpoints
 
-Method-level security
+### Authentication
+- `POST /api/auth/register`: Register a new account.
+- `POST /api/auth/login`: Authenticate and receive access/refresh tokens.
+- `POST /api/auth/refresh`: Obtain a new access token using a refresh token.
+- `POST /api/auth/logout`: Invalidate the current refresh token.
 
-Clear separation of authentication vs authorization
+### Tasks
+- `GET /api/tasks`: Search, filter, and paginate tasks.
+- `GET /api/tasks/{id}`: Retrieve specific task details.
+- `POST /api/tasks`: Create a new task.
+- `PUT /api/tasks/{id}`: Update an existing task.
+- `DELETE /api/tasks/{id}`: Soft-delete a task.
 
-Ownership Enforcement
+### Admin
+- `POST /api/admin/tasks/{id}/restore`: Restore a soft-deleted task.
 
-Users can access only their own tasks
+## Running the Project
 
-Admins can access and manage all tasks
+### Prerequisites
+Ensure the following are installed on your system:
+- Java 21
+- Maven 3.9+
+- Docker
 
-Ownership checks enforced in the service layer
-
-🛡️ Security & Abuse Protection
-
-BCrypt password hashing
-
-JWT secrets externalized
-
-Rate limiting using Bucket4j
-
-Limits applied:
-
-Per user (authenticated)
-
-Per IP (unauthenticated)
-
-Proper HTTP semantics:
-
-401 → unauthenticated
-
-403 → forbidden
-
-429 → too many requests
-
-📄 API Documentation (Swagger)
-
-OpenAPI documentation enabled
-
-JWT Bearer auth supported directly in Swagger UI
-
-Clean grouping and schemas
-
-Access:
-
-/swagger-ui.html
-
-🗄️ Database & Docker
-MySQL (Docker)
+### Database Setup(MySQL via Docker)
+Start a MySQL 8 container:
+```bash
 docker run --name taskify-mysql \
   -e MYSQL_ROOT_PASSWORD=rootpass \
   -e MYSQL_DATABASE=taskify_db \
@@ -185,225 +162,38 @@ docker run --name taskify-mysql \
   -e MYSQL_PASSWORD=taskpass \
   -p 3306:3306 \
   -d mysql:8.0
-
-Configuration
+```
+### Application Configuration
+Verify the following properties in application.properties:
+```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/taskify_db
 spring.datasource.username=taskuser
 spring.datasource.password=taskpass
 
+spring.jpa.hibernate.ddl-auto=update
+
 jwt.expiration=900000
 jwt.refresh-expiration=604800000
-
-🧱 Core Domain Model
-User
-
-id
-
-username
-
-email
-
-password (BCrypt)
-
-roles
-
-Task
-
-id
-
-title
-
-description
-
-status
-
-priority
-
-dueDate
-
-createdAt
-
-deletedAt (soft delete)
-
-owner
-
-RefreshToken
-
-token
-
-user
-
-expiryDate
-
-revoked
-
-AuditLog
-
-actorUserId
-
-role
-
-action
-
-targetType
-
-targetId
-
-timestamp
-
-ipAddress
-
-metadata
-
-🧾 Soft Deletes & Retention
-
-Tasks are soft-deleted
-
-Deleted tasks:
-
-Hidden from users
-
-Visible to admins
-
-Admins can restore deleted tasks
-
-Retention job cleans up expired records
-
-All delete/restore actions are audited
-
-🔍 Advanced Querying
-
-Implemented using JPA Specifications.
-
-Supports:
-
-Status filtering
-
-Priority filtering
-
-Keyword search
-
-Date range filters
-
-Sorting
-
-Pagination
-
-Example:
-
-GET /api/tasks?status=PENDING&sort=dueDate,asc&page=0&size=5
-
-⚡ Performance & Caching
-
-Spring Cache abstraction
-
-Caffeine in-memory cache
-
-Cache scoped by:
-
-user
-
-role
-
-query parameters
-
-Explicit invalidation on mutations
-
-Redis-ready design
-
-📊 Observability & Audit Logging
-Structured Logging
-
-Correlation ID per request
-
-User ID, endpoint, status
-
-No secrets logged
-
-Audit Logging
-
-Audited actions include:
-
-Login success/failure
-
-Token refresh
-
-Logout
-
-Task create/update/delete
-
-Admin actions
-
-Audit logs stored in DB.
-
-🧪 Testing
-src/test/java/com/taskify/taskify
-├── audit/
-├── cache/
-├── controller/
-├── security/
-├── service/
-├── task/
-└── TaskifyApplicationTests.java
-
-
-Test coverage includes:
-
-Service unit tests
-
-Controller integration tests
-
-JWT auth flows
-
-Rate limiting
-
-Caching behavior
-
-Audit logging
-
-Query filtering
-
-Run tests:
-
+```
+
+### Build and Test
+```bash
+mvn clean install
 mvn test
+```
 
-🧭 API Endpoints
-Auth
+### Run the Application
+Start the Spring Boot application:
+```bash
+mvn spring-boot:run
+```
 
-POST /api/auth/register
+The application will be available at: http://localhost:8080
 
-POST /api/auth/login
+Swagger UI (API documentation): http://localhost:8080/swagger-ui.html
 
-POST /api/auth/refresh
-
-POST /api/auth/logout
-
-Tasks
-
-POST /api/tasks
-
-GET /api/tasks
-
-GET /api/tasks/{id}
-
-PUT /api/tasks/{id}
-
-DELETE /api/tasks/{id}
-
-Admin
-
-POST /api/admin/tasks/{id}/restore
-
-🧠 What This Project Demonstrates
-
-✔ Secure authentication lifecycle
-✔ Authorization & ownership enforcement
-✔ Defensive API design
-✔ Observability & auditability
-✔ Performance-aware caching
-✔ Scalable querying strategy
-✔ Professional testing discipline
-
-🧁 Final Note
-
-Taskify is built to reflect how backend systems are actually designed and evolved, not how tutorials simplify them.
+### Stop the Database
+```bash
+docker stop taskify-mysql
+docker rm taskify-mysql
+```
