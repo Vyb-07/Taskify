@@ -13,6 +13,11 @@ import com.taskify.taskify.service.TaskService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,11 +32,14 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final AuditService auditService;
+    private final CacheManager cacheManager;
 
-    public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository, AuditService auditService) {
+    public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository,
+            AuditService auditService, CacheManager cacheManager) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.auditService = auditService;
+        this.cacheManager = cacheManager;
     }
 
     @Override
@@ -50,10 +58,13 @@ public class TaskServiceImpl implements TaskService {
 
         auditService.logEvent(AuditAction.TASK_CREATE, AuditTargetType.TASK, String.valueOf(savedTask.getId()), null);
 
+        incrementTaskVersion(currentUser.getUsername());
+
         return mapToResponse(savedTask);
     }
 
     @Override
+    @Cacheable(value = "taskDetails", key = "#id", unless = "#result == null")
     public TaskResponse getTaskById(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
@@ -65,6 +76,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "taskDetails", key = "#id")
+    })
     public TaskResponse updateTask(Long id, TaskRequest request) {
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
@@ -83,11 +97,17 @@ public class TaskServiceImpl implements TaskService {
         auditService.logEvent(AuditAction.TASK_UPDATE, AuditTargetType.TASK, String.valueOf(updatedTask.getId()),
                 isAdminAction ? java.util.Map.of("adminAction", true) : null);
 
+        incrementTaskVersion(existingTask.getOwner().getUsername());
+        if (isAdminAction) {
+            incrementTaskVersion(currentUser.getUsername());
+        }
+
         return mapToResponse(updatedTask);
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = "taskDetails", key = "#id")
     public void deleteTask(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
@@ -102,9 +122,15 @@ public class TaskServiceImpl implements TaskService {
 
         auditService.logEvent(AuditAction.TASK_DELETE, AuditTargetType.TASK, String.valueOf(id),
                 isAdminAction ? java.util.Map.of("adminAction", true) : null);
+
+        incrementTaskVersion(task.getOwner().getUsername());
+        if (isAdminAction) {
+            incrementTaskVersion(currentUser.getUsername());
+        }
     }
 
     @Override
+    @Cacheable(value = "tasks", keyGenerator = "taskCacheKeyGenerator")
     public Page<TaskResponse> getAllTasks(
             Status status,
             Priority priority,
@@ -164,6 +190,15 @@ public class TaskServiceImpl implements TaskService {
     private boolean isAdmin(User user) {
         return user.getRoles().stream()
                 .anyMatch(role -> role.getName().equals(SecurityConstants.ROLE_ADMIN));
+    }
+
+    private void incrementTaskVersion(String username) {
+        Cache versionCache = cacheManager.getCache("taskVersions");
+        if (versionCache != null) {
+            String currentVersion = versionCache.get(username, String.class);
+            long nextVersion = (currentVersion == null) ? 1 : Long.parseLong(currentVersion) + 1;
+            versionCache.put(username, String.valueOf(nextVersion));
+        }
     }
 
     private TaskResponse mapToResponse(Task task) {
