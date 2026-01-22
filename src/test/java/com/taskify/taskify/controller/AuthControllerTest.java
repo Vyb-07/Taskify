@@ -59,7 +59,7 @@ public class AuthControllerTest {
     void shouldRegisterUserSuccessfully() throws Exception {
         RegisterRequest request = new RegisterRequest("testuser", "test@example.com", "password");
 
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
@@ -69,7 +69,7 @@ public class AuthControllerTest {
     void shouldLoginSuccessfully() throws Exception {
         // First register
         RegisterRequest registerRequest = new RegisterRequest("testuser", "test@example.com", "password");
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isCreated());
@@ -77,7 +77,7 @@ public class AuthControllerTest {
         // Then login
         LoginRequest loginRequest = new LoginRequest("testuser", "password");
 
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -88,7 +88,7 @@ public class AuthControllerTest {
     void shouldReturn401ForInvalidLogin() throws Exception {
         LoginRequest loginRequest = new LoginRequest("invalid", "wrong");
 
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isUnauthorized());

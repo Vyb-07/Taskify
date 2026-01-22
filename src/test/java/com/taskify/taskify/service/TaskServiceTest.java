@@ -47,6 +47,12 @@ public class TaskServiceTest {
     @Mock
     private AuditService auditService;
 
+    @Mock
+    private org.springframework.cache.CacheManager cacheManager;
+
+    @Mock
+    private org.springframework.cache.Cache cache;
+
     @InjectMocks
     private TaskServiceImpl taskService;
 
@@ -77,6 +83,9 @@ public class TaskServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getName()).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+
+        // Mock cache for incrementTaskVersion
+        lenient().when(cacheManager.getCache("taskVersions")).thenReturn(cache);
     }
 
     @Test

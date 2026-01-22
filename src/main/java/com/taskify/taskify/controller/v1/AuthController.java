@@ -1,4 +1,4 @@
-package com.taskify.taskify.controller;
+package com.taskify.taskify.controller.v1;
 
 import com.taskify.taskify.dto.AuthResponse;
 import com.taskify.taskify.dto.LoginRequest;
@@ -13,8 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
-@Tag(name = "Authentication", description = "APIs for user registration and login")
+@RequestMapping("/api/v1/auth")
+@Tag(name = "Authentication", description = "Version 1 APIs for user registration and login")
 public class AuthController {
 
     private final AuthService authService;

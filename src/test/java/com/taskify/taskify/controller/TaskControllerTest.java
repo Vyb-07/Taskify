@@ -68,13 +68,13 @@ public class TaskControllerTest {
 
                 // Register and login to get JWT
                 RegisterRequest registerRequest = new RegisterRequest("testuser", "test@example.com", "password");
-                mockMvc.perform(post("/api/auth/register")
+                mockMvc.perform(post("/api/v1/auth/register")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(registerRequest)))
                                 .andExpect(status().isCreated());
 
                 LoginRequest loginRequest = new LoginRequest("testuser", "password");
-                MvcResult result = mockMvc.perform(post("/api/auth/login")
+                MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(loginRequest)))
                                 .andExpect(status().isOk())
@@ -95,7 +95,7 @@ public class TaskControllerTest {
                 request.setStatus(Status.PENDING);
                 request.setDueDate(LocalDateTime.now().plusDays(1));
 
-                mockMvc.perform(post("/api/tasks")
+                mockMvc.perform(post("/api/v1/tasks")
                                 .header("Authorization", jwtToken)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
@@ -105,13 +105,13 @@ public class TaskControllerTest {
 
         @Test
         void shouldReturn401WhenJwtIsMissing() throws Exception {
-                mockMvc.perform(get("/api/tasks"))
+                mockMvc.perform(get("/api/v1/tasks"))
                                 .andExpect(status().isForbidden()); // Spring Security default for unauthorized
         }
 
         @Test
         void shouldGetAllTasks() throws Exception {
-                mockMvc.perform(get("/api/tasks")
+                mockMvc.perform(get("/api/v1/tasks")
                                 .header("Authorization", jwtToken))
                                 .andExpect(status().isOk());
         }
@@ -123,7 +123,7 @@ public class TaskControllerTest {
                 request.setTitle("Task 1");
                 request.setStatus(Status.PENDING);
 
-                MvcResult result = mockMvc.perform(post("/api/tasks")
+                MvcResult result = mockMvc.perform(post("/api/v1/tasks")
                                 .header("Authorization", jwtToken)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request)))
@@ -135,7 +135,7 @@ public class TaskControllerTest {
                                 });
                 Integer id = (Integer) taskMap.get("id");
 
-                mockMvc.perform(get("/api/tasks/" + id)
+                mockMvc.perform(get("/api/v1/tasks/" + id)
                                 .header("Authorization", jwtToken))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.title").value("Task 1"));

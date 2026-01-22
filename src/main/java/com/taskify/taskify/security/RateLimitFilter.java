@@ -36,7 +36,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
 
         // 2. Identify key and type
-        boolean isAuthEndpoint = path.startsWith("/api/auth");
+        boolean isAuthEndpoint = path.startsWith("/api/v1/auth");
         String key = resolveKey(request);
 
         // 3. Resolve bucket and consume

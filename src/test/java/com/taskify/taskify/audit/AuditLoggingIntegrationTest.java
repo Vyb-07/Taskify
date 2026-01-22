@@ -68,7 +68,7 @@ public class AuditLoggingIntegrationTest {
     void shouldCreateAuditLogAndCorrelationIdOnRegistration() throws Exception {
         RegisterRequest request = new RegisterRequest("audituser", "audit@example.com", "password");
 
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -88,7 +88,7 @@ public class AuditLoggingIntegrationTest {
     void shouldLogAuditOnLoginFailure() throws Exception {
         LoginRequest request = new LoginRequest("nonexistent", "wrong");
 
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized())

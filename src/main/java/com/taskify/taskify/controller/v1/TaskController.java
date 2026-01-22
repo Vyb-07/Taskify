@@ -1,4 +1,4 @@
-package com.taskify.taskify.controller;
+package com.taskify.taskify.controller.v1;
 
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
@@ -21,8 +21,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/api/tasks")
-@Tag(name = "Tasks", description = "APIs for managing tasks")
+@RequestMapping("/api/v1/tasks")
+@Tag(name = "Tasks", description = "Version 1 APIs for managing tasks")
 @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
 public class TaskController {
 
@@ -69,6 +69,15 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
+    @Operation(summary = "Get task by ID", description = "Returns a single task by its identifier")
+    @ApiResponse(responseCode = "200", description = "Task retrieved successfully")
+    @ApiResponse(responseCode = "401", description = "Unauthorized access")
+    @ApiResponse(responseCode = "404", description = "Task not found")
+    @GetMapping("/{id}")
+    public ResponseEntity<TaskResponse> getTaskById(@PathVariable Long id) {
+        return ResponseEntity.ok(taskService.getTaskById(id));
+    }
+
     @Operation(summary = "Update a task", description = "Updates an existing task by ID")
     @ApiResponse(responseCode = "200", description = "Task updated successfully")
     @ApiResponse(responseCode = "400", description = "Invalid input data")
@@ -82,7 +91,7 @@ public class TaskController {
     }
 
     @Operation(summary = "Delete a task", description = "Removes a task by its identifier")
-    @ApiResponse(responseCode = "24", description = "Task deleted successfully")
+    @ApiResponse(responseCode = "204", description = "Task deleted successfully")
     @ApiResponse(responseCode = "401", description = "Unauthorized access")
     @ApiResponse(responseCode = "404", description = "Task not found")
     @DeleteMapping("/{id}")

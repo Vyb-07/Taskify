@@ -11,20 +11,20 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI taskifyOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Taskify API")
-                        .description("Task management REST API with JWT authentication")
-                        .version("v1"))
-                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
-                .components(new Components()
-                        .addSecuritySchemes("bearerAuth",
-                                new SecurityScheme()
-                                        .name("bearerAuth")
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")));
-    }
+        @Bean
+        public OpenAPI taskifyOpenAPI() {
+                return new OpenAPI()
+                                .info(new Info()
+                                                .title("Taskify API v1")
+                                                .description("Task management REST API with JWT authentication. Base path: /api/v1")
+                                                .version("v1"))
+                                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+                                .components(new Components()
+                                                .addSecuritySchemes("bearerAuth",
+                                                                new SecurityScheme()
+                                                                                .name("bearerAuth")
+                                                                                .type(SecurityScheme.Type.HTTP)
+                                                                                .scheme("bearer")
+                                                                                .bearerFormat("JWT")));
+        }
 }

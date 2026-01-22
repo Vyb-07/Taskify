@@ -67,7 +67,7 @@ public class RateLimitIntegrationTest {
 
         // 2. Test API rate limit (50 requests/min)
         for (int i = 0; i < 50; i++) {
-            mockMvc.perform(get("/api/tasks"))
+            mockMvc.perform(get("/api/v1/tasks"))
                     .andExpect(result -> {
                         int status = result.getResponse().getStatus();
                         if (status != 403 && status != 401 && status != 429) {
@@ -76,12 +76,12 @@ public class RateLimitIntegrationTest {
                     });
         }
 
-        mockMvc.perform(get("/api/tasks"))
+        mockMvc.perform(get("/api/v1/tasks"))
                 .andExpect(status().isTooManyRequests());
 
         // 3. Test Auth rate limit (10 requests/min) for the same IP
         for (int i = 0; i < 10; i++) {
-            mockMvc.perform(get("/api/auth/login"))
+            mockMvc.perform(get("/api/v1/auth/login"))
                     .andExpect(result -> {
                         int status = result.getResponse().getStatus();
                         if (status != 405 && status != 429) {
@@ -89,7 +89,7 @@ public class RateLimitIntegrationTest {
                         }
                     });
         }
-        mockMvc.perform(get("/api/auth/login"))
+        mockMvc.perform(get("/api/v1/auth/login"))
                 .andExpect(status().isTooManyRequests());
     }
 
@@ -97,13 +97,13 @@ public class RateLimitIntegrationTest {
     void shouldExceedRateLimitForAuthenticatedUser() throws Exception {
         // Register and login
         RegisterRequest registerRequest = new RegisterRequest("ratelimituser", "limit@example.com", "password");
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isCreated());
 
         LoginRequest loginRequest = new LoginRequest("ratelimituser", "password");
-        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+        MvcResult loginResult = mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -117,18 +117,18 @@ public class RateLimitIntegrationTest {
         // Authenticated users use the user bucket.
         // API capacity is 50.
         for (int i = 0; i < 50; i++) {
-            mockMvc.perform(get("/api/tasks")
+            mockMvc.perform(get("/api/v1/tasks")
                     .header("Authorization", token))
                     .andExpect(status().isOk());
         }
 
         // The 51st request should be 429
-        mockMvc.perform(get("/api/tasks")
+        mockMvc.perform(get("/api/v1/tasks")
                 .header("Authorization", token))
                 .andExpect(status().isTooManyRequests());
 
         // Verify that ANOTHER user (or unauthenticated) still has their own limit
-        mockMvc.perform(get("/api/tasks")) // Unauthenticated IP
+        mockMvc.perform(get("/api/v1/tasks")) // Unauthenticated IP
                 .andExpect(status().isForbidden()); // Passed rate limit, blocked by security
     }
 }

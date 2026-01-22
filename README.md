@@ -26,8 +26,9 @@ src/main/java/com/taskify/taskify
 │   ├── SecurityConfig.java
 │   └── TaskCacheKeyGenerator.java
 ├── controller/
-│   ├── AuthController.java
-│   └── TaskController.java
+│   └── v1/
+│       ├── AuthController.java
+│       └── TaskController.java
 ├── dto/
 │   ├── ApiError.java
 │   ├── AuthResponse.java
@@ -129,20 +130,32 @@ src/main/java/com/taskify/taskify
 ## API Endpoints
 
 ### Authentication
-- `POST /api/auth/register`: Register a new account.
-- `POST /api/auth/login`: Authenticate and receive access/refresh tokens.
-- `POST /api/auth/refresh`: Obtain a new access token using a refresh token.
-- `POST /api/auth/logout`: Invalidate the current refresh token.
+- `POST /api/v1/auth/register`: Register a new account.
+- `POST /api/v1/auth/login`: Authenticate and receive access/refresh tokens.
+- `POST /api/v1/auth/refresh`: Obtain a new access token using a refresh token.
+- `POST /api/v1/auth/logout`: Invalidate the current refresh token.
 
 ### Tasks
-- `GET /api/tasks`: Search, filter, and paginate tasks.
-- `GET /api/tasks/{id}`: Retrieve specific task details.
-- `POST /api/tasks`: Create a new task.
-- `PUT /api/tasks/{id}`: Update an existing task.
-- `DELETE /api/tasks/{id}`: Soft-delete a task.
+- `GET /api/v1/tasks`: Search, filter, and paginate tasks.
+- `GET /api/v1/tasks/{id}`: Retrieve specific task details.
+- `POST /api/v1/tasks`: Create a new task.
+- `PUT /api/v1/tasks/{id}`: Update an existing task.
+- `DELETE /api/v1/tasks/{id}`: Soft-delete a task.
 
 ### Admin
-- `POST /api/admin/tasks/{id}/restore`: Restore a soft-deleted task.
+- `POST /api/v1/admin/tasks/{id}/restore`: Restore a soft-deleted task.
+
+## API Versioning
+
+Taskify uses URL-based versioning to ensure backward compatibility as the system evolves.
+
+- **Current Stable Version**: `v1`
+- **Base Path**: `/api/v1`
+
+### Handling Changes
+- **Non-Breaking Changes**: Added to the current version (e.g., new optional fields, new endpoints).
+- **Breaking Changes**: Will trigger a new version (e.g., `v2`), leaving `v1` intact for existing clients.
+- **Deprecation**: Older versions will be maintained for a transition period before being retired.
 
 ## Running the Project
 
