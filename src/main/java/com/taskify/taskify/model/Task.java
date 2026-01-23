@@ -33,6 +33,9 @@ public class Task {
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
+    @Version
+    private Integer version;
+
     // Default constructor (required by JPA)
     public Task() {
     }
@@ -121,5 +124,13 @@ public class Task {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

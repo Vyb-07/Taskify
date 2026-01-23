@@ -134,6 +134,19 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(error, HttpStatus.TOO_MANY_REQUESTS);
         }
 
+        @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
+        public ResponseEntity<ApiError> handleOptimisticLockFailure(
+                        org.springframework.orm.ObjectOptimisticLockingFailureException ex, WebRequest request) {
+                ApiError error = new ApiError(
+                                LocalDateTime.now(),
+                                HttpStatus.CONFLICT.value(),
+                                "Conflict",
+                                "The resource you are trying to update has been modified by another user. Please reload and try again.",
+                                request.getDescription(false).replace("uri=", ""));
+                logger.warn("Optimistic lock failure: {}", ex.getMessage());
+                return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+        }
+
         // 🧩 5️⃣ Catch any unexpected exception (fallback)
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ApiError> handleGenericException(Exception ex, WebRequest request) {
