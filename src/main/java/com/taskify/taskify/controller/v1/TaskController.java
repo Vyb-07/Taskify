@@ -1,9 +1,14 @@
 package com.taskify.taskify.controller.v1;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
 import com.taskify.taskify.model.Priority;
 import com.taskify.taskify.model.Status;
+import com.taskify.taskify.model.IdempotencyKey;
+import com.taskify.taskify.model.User;
+import com.taskify.taskify.repository.UserRepository;
+import com.taskify.taskify.service.IdempotencyService;
 import com.taskify.taskify.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,9 +21,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/tasks")
@@ -27,10 +34,17 @@ import java.time.LocalDateTime;
 public class TaskController {
 
     private final TaskService taskService;
+    private final IdempotencyService idempotencyService;
+    private final UserRepository userRepository;
+    private final ObjectMapper objectMapper;
 
     // Constructor injection — ensures immutability and easier testing
-    public TaskController(TaskService taskService) {
+    public TaskController(TaskService taskService, IdempotencyService idempotencyService,
+            UserRepository userRepository, ObjectMapper objectMapper) {
         this.taskService = taskService;
+        this.idempotencyService = idempotencyService;
+        this.userRepository = userRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Operation(summary = "Create a new task", description = "Creates a new task for the authenticated user")
@@ -38,9 +52,43 @@ public class TaskController {
     @ApiResponse(responseCode = "400", description = "Invalid input data")
     @ApiResponse(responseCode = "401", description = "Unauthorized access")
     @PostMapping
-    public ResponseEntity<TaskResponse> createTask(@RequestBody @Valid TaskRequest request) {
+    public ResponseEntity<TaskResponse> createTask(
+            @RequestBody @Valid TaskRequest request,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey) {
+
+        if (idempotencyKey == null || idempotencyKey.isBlank()) {
+            TaskResponse createdTask = taskService.createTask(request);
+            return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
+        }
+
+        User currentUser = getCurrentUser();
+        String endpoint = "/api/v1/tasks";
+
+        Optional<IdempotencyKey> storedResponse = idempotencyService.getStoredResponse(
+                idempotencyKey, currentUser.getId(), endpoint, request);
+
+        if (storedResponse.isPresent()) {
+            try {
+                TaskResponse responseBody = objectMapper.readValue(
+                        storedResponse.get().getResponseBody(), TaskResponse.class);
+                return ResponseEntity.status(storedResponse.get().getResponseStatus()).body(responseBody);
+            } catch (Exception e) {
+                throw new RuntimeException("Error deserializing stored idempotency response", e);
+            }
+        }
+
         TaskResponse createdTask = taskService.createTask(request);
+
+        idempotencyService.saveResponse(
+                idempotencyKey, currentUser.getId(), endpoint, request, createdTask, HttpStatus.CREATED.value());
+
         return new ResponseEntity<>(createdTask, HttpStatus.CREATED);
+    }
+
+    private User getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
     }
 
     @Operation(summary = "Get tasks with filters", description = "Returns a paginated list of tasks filtered by various criteria")

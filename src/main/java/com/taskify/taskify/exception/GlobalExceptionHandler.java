@@ -147,6 +147,18 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(error, HttpStatus.CONFLICT);
         }
 
+        @ExceptionHandler(IdempotencyException.class)
+        public ResponseEntity<ApiError> handleIdempotencyException(IdempotencyException ex, WebRequest request) {
+                ApiError error = new ApiError(
+                                LocalDateTime.now(),
+                                HttpStatus.CONFLICT.value(),
+                                "Idempotency Error",
+                                ex.getMessage(),
+                                request.getDescription(false).replace("uri=", ""));
+                logger.warn("Idempotency error: {}", ex.getMessage());
+                return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+        }
+
         // 🧩 5️⃣ Catch any unexpected exception (fallback)
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ApiError> handleGenericException(Exception ex, WebRequest request) {

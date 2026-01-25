@@ -46,6 +46,7 @@ src/main/java/com/taskify/taskify
 │   ├── AuditAction.java
 │   ├── AuditLog.java
 │   ├── AuditTargetType.java
+│   ├── IdempotencyKey.java
 │   ├── Priority.java
 │   ├── RefreshToken.java
 │   ├── Role.java
@@ -54,6 +55,7 @@ src/main/java/com/taskify/taskify
 │   └── User.java
 ├── repository/
 │   ├── AuditLogRepository.java
+│   ├── IdempotencyKeyRepository.java
 │   ├── RefreshTokenRepository.java
 │   ├── RoleRepository.java
 │   ├── TaskRepository.java
@@ -69,12 +71,15 @@ src/main/java/com/taskify/taskify
 ├── service/
 │   ├── AuditService.java
 │   ├── AuthService.java
+│   ├── IdempotencyService.java
+│   ├── IdempotencyCleanupTask.java
 │   ├── RateLimitService.java
 │   ├── RefreshTokenService.java
 │   ├── TaskService.java
 │   └── impl/
 │       ├── AuditServiceImpl.java
 │       ├── AuthServiceImpl.java
+│       ├── IdempotencyServiceImpl.java
 │       ├── RefreshTokenServiceImpl.java
 │       ├── TaskServiceImpl.java
 │       └── UserDetailsServiceImpl.java
@@ -99,12 +104,14 @@ src/main/java/com/taskify/taskify
 - Soft Deletes: Tasks are soft-deleted to allow for restoration and auditing.
 - Encryption: BCrypt password hashing for secure user credential storage.
 - Correlation ID: Middleware to track requests across filters and services for debugging.
+- Idempotency Persistence: Secure, database-backed storage for critical write operations with configurable expiration (TTL).
 
 ## Core Features
 
 - Advanced querying using JPA Specifications
 - Unified task search endpoint with filtering, pagination, and sorting
 - Asynchronous audit logging of business-critical events (authentication and task lifecycle)
+- **Idempotent Write Operations**: Support for `Idempotency-Key` header on task creation to prevent duplicate processing on retries.
 
 ## Caching & Performance
 
@@ -126,6 +133,7 @@ src/main/java/com/taskify/taskify
     - JWT and Security flow validation.
     - Caching behavior and invalidation logic.
     - Advanced query and ownership enforcement tests.
+    - **Idempotency and Retry Safety tests**.
 
 ## API Endpoints
 
@@ -138,7 +146,7 @@ src/main/java/com/taskify/taskify
 ### Tasks
 - `GET /api/v1/tasks`: Search, filter, and paginate tasks.
 - `GET /api/v1/tasks/{id}`: Retrieve specific task details.
-- `POST /api/v1/tasks`: Create a new task.
+- `POST /api/v1/tasks`: Create a new task. (Supports `Idempotency-Key` header)
 - `PUT /api/v1/tasks/{id}`: Update an existing task.
 - `DELETE /api/v1/tasks/{id}`: Soft-delete a task.
 
