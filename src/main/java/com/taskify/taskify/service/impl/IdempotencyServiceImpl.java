@@ -6,6 +6,7 @@ import com.taskify.taskify.exception.IdempotencyException;
 import com.taskify.taskify.model.IdempotencyKey;
 import com.taskify.taskify.repository.IdempotencyKeyRepository;
 import com.taskify.taskify.service.IdempotencyService;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +24,14 @@ public class IdempotencyServiceImpl implements IdempotencyService {
     private final IdempotencyKeyRepository repository;
     private final ObjectMapper objectMapper;
     private final int ttlMinutes;
+    private final MeterRegistry meterRegistry;
 
     public IdempotencyServiceImpl(IdempotencyKeyRepository repository, ObjectMapper objectMapper,
-            @Value("${app.idempotency.ttl-minutes:1440}") int ttlMinutes) {
+            @Value("${app.idempotency.ttl-minutes:1440}") int ttlMinutes, MeterRegistry meterRegistry) {
         this.repository = repository;
         this.objectMapper = objectMapper;
         this.ttlMinutes = ttlMinutes;
+        this.meterRegistry = meterRegistry;
     }
 
     @Override
@@ -47,6 +50,8 @@ public class IdempotencyServiceImpl implements IdempotencyService {
             if (!idempotencyKey.getRequestHash().equals(currentHash)) {
                 throw new IdempotencyException("Idempotency key reused with a different request payload.");
             }
+
+            meterRegistry.counter("taskify.idempotency.replays").increment();
 
             return Optional.of(idempotencyKey);
         }

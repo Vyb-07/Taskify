@@ -11,6 +11,7 @@ Taskify is a professional-grade Task Management REST API built with Spring Boot 
 - MySQL 8
 - Caffeine (In-memory caching)
 - Bucket4j (Rate limiting)
+- Spring Boot Actuator & Micrometer (Observability)
 - Springdoc OpenAPI 2.8
 - JUnit 5 & Mockito
 - Docker
@@ -25,6 +26,8 @@ src/main/java/com/taskify/taskify
 │   ├── SecurityBeansConfig.java
 │   ├── SecurityConfig.java
 │   └── TaskCacheKeyGenerator.java
+├── health/
+│   └── DatabaseHealthIndicator.java
 ├── controller/
 │   └── v1/
 │       ├── AuthController.java
@@ -123,6 +126,8 @@ src/main/java/com/taskify/taskify
 
 - Structured Logging: Consistent logging with request context (Correlation ID, User ID).
 - Audit Logs: Database-backed audit trails for all administrative and authentication actions.
+- Health Monitoring: Real-time health checks via Spring Boot Actuator (public `/actuator/health` endpoint).
+- Business Metrics: Micrometer-based metrics tracking task operations, rate limiting, and idempotency (available at `/actuator/metrics` for administrators).
 - Debug Level Caching: Cache hits and misses monitored without logging sensitive payloads.
 
 ## Testing Strategy
@@ -152,6 +157,8 @@ src/main/java/com/taskify/taskify
 
 ### Admin
 - `POST /api/v1/admin/tasks/{id}/restore`: Restore a soft-deleted task.
+- `GET /actuator/health`: Public health check endpoint.
+- `GET /actuator/metrics`: System and custom business metrics (Admin only).
 
 ## API Versioning
 

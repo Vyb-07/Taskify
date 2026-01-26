@@ -3,6 +3,7 @@ package com.taskify.taskify.security;
 import com.taskify.taskify.service.RateLimitService;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,9 +19,11 @@ import java.io.IOException;
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimitService rateLimitService;
+    private final MeterRegistry meterRegistry;
 
-    public RateLimitFilter(RateLimitService rateLimitService) {
+    public RateLimitFilter(RateLimitService rateLimitService, MeterRegistry meterRegistry) {
         this.rateLimitService = rateLimitService;
+        this.meterRegistry = meterRegistry;
     }
 
     @Override
@@ -46,6 +49,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         if (probe.isConsumed()) {
             filterChain.doFilter(request, response);
         } else {
+            meterRegistry.counter("taskify.rate_limit.rejections").increment();
             handleRateLimitExceeded(response, probe);
         }
     }

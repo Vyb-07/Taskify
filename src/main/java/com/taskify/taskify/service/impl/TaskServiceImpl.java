@@ -10,6 +10,7 @@ import com.taskify.taskify.repository.UserRepository;
 import com.taskify.taskify.security.SecurityConstants;
 import com.taskify.taskify.service.AuditService;
 import com.taskify.taskify.service.TaskService;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -23,6 +24,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.time.LocalDateTime;
 
@@ -33,13 +35,15 @@ public class TaskServiceImpl implements TaskService {
     private final UserRepository userRepository;
     private final AuditService auditService;
     private final CacheManager cacheManager;
+    private final MeterRegistry meterRegistry;
 
     public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository,
-            AuditService auditService, CacheManager cacheManager) {
+            AuditService auditService, CacheManager cacheManager, MeterRegistry meterRegistry) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.auditService = auditService;
         this.cacheManager = cacheManager;
+        this.meterRegistry = meterRegistry;
     }
 
     @Override
@@ -57,6 +61,8 @@ public class TaskServiceImpl implements TaskService {
         Task savedTask = taskRepository.save(task);
 
         auditService.logEvent(AuditAction.TASK_CREATE, AuditTargetType.TASK, String.valueOf(savedTask.getId()), null);
+
+        meterRegistry.counter("taskify.tasks.created").increment();
 
         incrementTaskVersion(currentUser.getUsername());
 
@@ -90,19 +96,26 @@ public class TaskServiceImpl implements TaskService {
         existingTask.setStatus(request.getStatus());
         existingTask.setDueDate(request.getDueDate());
 
-        Task updatedTask = taskRepository.save(existingTask);
+        try {
+            Task updatedTask = taskRepository.save(existingTask);
 
-        User currentUser = getCurrentUser();
-        boolean isAdminAction = isAdmin(currentUser) && existingTask.getOwner().getId() != currentUser.getId();
-        auditService.logEvent(AuditAction.TASK_UPDATE, AuditTargetType.TASK, String.valueOf(updatedTask.getId()),
-                isAdminAction ? java.util.Map.of("adminAction", true) : null);
+            User currentUser = getCurrentUser();
+            boolean isAdminAction = isAdmin(currentUser) && existingTask.getOwner().getId() != currentUser.getId();
+            auditService.logEvent(AuditAction.TASK_UPDATE, AuditTargetType.TASK, String.valueOf(updatedTask.getId()),
+                    isAdminAction ? java.util.Map.of("adminAction", true) : null);
 
-        incrementTaskVersion(existingTask.getOwner().getUsername());
-        if (isAdminAction) {
-            incrementTaskVersion(currentUser.getUsername());
+            incrementTaskVersion(existingTask.getOwner().getUsername());
+            if (isAdminAction) {
+                incrementTaskVersion(currentUser.getUsername());
+            }
+
+            meterRegistry.counter("taskify.tasks.updated").increment();
+
+            return mapToResponse(updatedTask);
+        } catch (ObjectOptimisticLockingFailureException e) {
+            meterRegistry.counter("taskify.tasks.optimistic_lock_conflicts").increment();
+            throw e;
         }
-
-        return mapToResponse(updatedTask);
     }
 
     @Override
