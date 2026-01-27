@@ -65,4 +65,8 @@ public class TaskSpecification {
     public static Specification<Task> isDeleted() {
         return (root, query, cb) -> cb.equal(root.get("deleted"), true);
     }
+
+    public static Specification<Task> isNotStatus(Status status) {
+        return (root, query, cb) -> status == null ? null : cb.notEqual(root.get("status"), status);
+    }
 }

@@ -33,6 +33,7 @@ public class DeprecationIntegrationTest {
         if (userRepository.findByUsername("testuser").isEmpty()) {
             User user = new User();
             user.setUsername("testuser");
+            user.setEmail("test@example.com");
             user.setPassword("password");
             userRepository.save(user);
         }

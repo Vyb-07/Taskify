@@ -12,8 +12,12 @@ import com.taskify.taskify.service.AuditService;
 import com.taskify.taskify.service.TaskService;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
@@ -27,9 +31,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskServiceImpl implements TaskService {
+
+    private static final Logger log = LoggerFactory.getLogger(TaskServiceImpl.class);
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
@@ -140,6 +148,32 @@ public class TaskServiceImpl implements TaskService {
         if (isAdminAction) {
             incrementTaskVersion(currentUser.getUsername());
         }
+    }
+
+    @Override
+    public List<TaskResponse> getFocusTasks() {
+        User currentUser = getCurrentUser();
+
+        Specification<Task> spec = Specification.allOf(
+                TaskSpecification.isNotDeleted(),
+                TaskSpecification.withOwner(currentUser),
+                TaskSpecification.isNotStatus(Status.COMPLETED));
+
+        // Selection logic: Overdue/Due Soon first (ASC), then High Priority (DESC)
+        Pageable pageable = PageRequest.of(0, 5, Sort.by(
+                Sort.Order.asc("dueDate"),
+                Sort.Order.desc("priority")));
+
+        List<Task> focusTasks = taskRepository.findAll(spec, pageable).getContent();
+
+        log.debug("Focus Mode used by user: {}. Selected {} tasks based on urgency and priority.",
+                currentUser.getUsername(), focusTasks.size());
+
+        meterRegistry.counter("taskify.tasks.focus_mode_usage").increment();
+
+        return focusTasks.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override

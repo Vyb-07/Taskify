@@ -26,6 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -116,6 +117,14 @@ public class TaskController {
         Page<TaskResponse> tasks = taskService.getAllTasks(status, priority, fromDate, toDate, dueFrom, dueTo, keyword,
                 includeDeleted, pageable);
         return ResponseEntity.ok(tasks);
+    }
+
+    @Operation(summary = "Get focus tasks", description = "Returns a small set of urgent and high-priority tasks for the authenticated user")
+    @ApiResponse(responseCode = "200", description = "Focus tasks retrieved successfully")
+    @ApiResponse(responseCode = "401", description = "Unauthorized access")
+    @GetMapping("/focus")
+    public ResponseEntity<List<TaskResponse>> getFocusTasks() {
+        return ResponseEntity.ok(taskService.getFocusTasks());
     }
 
     @Operation(summary = "Get task by ID", description = "Returns a single task by its identifier", deprecated = true)
