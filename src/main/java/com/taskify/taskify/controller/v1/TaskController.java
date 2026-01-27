@@ -1,5 +1,6 @@
 package com.taskify.taskify.controller.v1;
 
+import com.taskify.taskify.config.ApiDeprecated;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
@@ -117,11 +118,13 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
-    @Operation(summary = "Get task by ID", description = "Returns a single task by its identifier")
+    @Operation(summary = "Get task by ID", description = "Returns a single task by its identifier", deprecated = true)
     @ApiResponse(responseCode = "200", description = "Task retrieved successfully")
     @ApiResponse(responseCode = "401", description = "Unauthorized access")
     @ApiResponse(responseCode = "404", description = "Task not found")
     @GetMapping("/{id}")
+    @Deprecated
+    @ApiDeprecated(sunsetDate = "2026-06-30T23:59:59Z", successorUrl = "/api/v1/tasks")
     public ResponseEntity<TaskResponse> getTaskById(@PathVariable Long id) {
         return ResponseEntity.ok(taskService.getTaskById(id));
     }

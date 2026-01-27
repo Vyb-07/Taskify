@@ -172,6 +172,20 @@ Taskify uses URL-based versioning to ensure backward compatibility as the system
 - **Breaking Changes**: Will trigger a new version (e.g., `v2`), leaving `v1` intact for existing clients.
 - **Deprecation**: Older versions will be maintained for a transition period before being retired.
 
+## API Deprecation Policy
+
+To ensure a stable experience for our clients while allowing the API to evolve, we follow a transparent deprecation lifecycle:
+
+1.  **Signaling**: Deprecated endpoints are marked with the `@Deprecated` annotation and the `deprecated` flag in OpenAPI documentation.
+2.  **HTTP Headers**: Responses from deprecated endpoints include the following headers:
+    *   `Deprecation: true`
+    *   `Sunset`: The ISO-8601 date after which the endpoint may be removed.
+    *   `Link`: A URL to the successor endpoint or version with `rel="successor-version"`.
+3.  **Support Period**: Deprecated endpoints are typically supported for **6 months** before removal.
+4.  **Logging**: Usage of deprecated endpoints is monitored via WARN-level logs to identify active clients that need migration.
+
+Clients are encouraged to migrate to successor endpoints as soon as they see the `Deprecation` header.
+
 ## Running the Project
 
 ### Prerequisites
