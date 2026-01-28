@@ -69,4 +69,15 @@ public class TaskSpecification {
     public static Specification<Task> isNotStatus(Status status) {
         return (root, query, cb) -> status == null ? null : cb.notEqual(root.get("status"), status);
     }
+
+    public static Specification<Task> isStagnant(LocalDateTime now, LocalDateTime overdueThreshold,
+            LocalDateTime inProgressThreshold, LocalDateTime pendingThreshold) {
+        return (root, query, cb) -> cb.or(
+                cb.and(cb.lessThan(root.get("dueDate"), now),
+                        cb.lessThan(root.get("lastModifiedAt"), overdueThreshold)),
+                cb.and(cb.equal(root.get("status"), Status.IN_PROGRESS),
+                        cb.lessThan(root.get("lastModifiedAt"), inProgressThreshold)),
+                cb.and(cb.equal(root.get("status"), Status.PENDING),
+                        cb.lessThan(root.get("lastModifiedAt"), pendingThreshold)));
+    }
 }

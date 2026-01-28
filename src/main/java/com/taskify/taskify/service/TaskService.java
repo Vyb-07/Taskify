@@ -32,4 +32,6 @@ public interface TaskService {
             String keyword,
             boolean includeDeleted,
             Pageable pageable);
+
+    List<TaskResponse> getStagnantTasks();
 }

@@ -28,6 +28,7 @@ public class Task {
     private boolean deleted = false;
 
     private LocalDateTime createdAt;
+    private LocalDateTime lastModifiedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -49,7 +50,19 @@ public class Task {
         this.dueDate = dueDate;
         this.owner = owner;
         this.createdAt = LocalDateTime.now();
+        this.lastModifiedAt = LocalDateTime.now();
         this.deleted = false;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.lastModifiedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.lastModifiedAt = LocalDateTime.now();
     }
 
     // Getters and setters
@@ -100,6 +113,14 @@ public class Task {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getLastModifiedAt() {
+        return lastModifiedAt;
+    }
+
+    public void setLastModifiedAt(LocalDateTime lastModifiedAt) {
+        this.lastModifiedAt = lastModifiedAt;
     }
 
     public User getOwner() {

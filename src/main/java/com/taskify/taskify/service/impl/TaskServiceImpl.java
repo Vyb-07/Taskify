@@ -177,6 +177,37 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public List<TaskResponse> getStagnantTasks() {
+        User currentUser = getCurrentUser();
+        LocalDateTime now = LocalDateTime.now();
+
+        // Thresholds for stagnation
+        LocalDateTime overdueThreshold = now.minusDays(2);
+        LocalDateTime inProgressThreshold = now.minusDays(3);
+        LocalDateTime pendingThreshold = now.minusDays(7);
+
+        Specification<Task> spec = Specification.allOf(
+                TaskSpecification.isNotDeleted(),
+                TaskSpecification.withOwner(currentUser),
+                TaskSpecification.isNotStatus(Status.COMPLETED),
+                TaskSpecification.isStagnant(now, overdueThreshold, inProgressThreshold, pendingThreshold));
+
+        // Selection logic: Most neglected first (oldest update)
+        Pageable pageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.ASC, "lastModifiedAt"));
+
+        List<Task> stagnantTasks = taskRepository.findAll(spec, pageable).getContent();
+
+        log.debug("Stagnant Task detection for user: {}. Identified {} tasks requiring attention.",
+                currentUser.getUsername(), stagnantTasks.size());
+
+        meterRegistry.counter("taskify.tasks.stagnant_mode_usage").increment();
+
+        return stagnantTasks.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Cacheable(value = "tasks", keyGenerator = "taskCacheKeyGenerator")
     public Page<TaskResponse> getAllTasks(
             Status status,

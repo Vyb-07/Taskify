@@ -127,6 +127,14 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getFocusTasks());
     }
 
+    @Operation(summary = "Get stagnant tasks", description = "Returns a small set of inactive or neglected tasks requiring attention")
+    @ApiResponse(responseCode = "200", description = "Stagnant tasks retrieved successfully")
+    @ApiResponse(responseCode = "401", description = "Unauthorized access")
+    @GetMapping("/stagnant")
+    public ResponseEntity<List<TaskResponse>> getStagnantTasks() {
+        return ResponseEntity.ok(taskService.getStagnantTasks());
+    }
+
     @Operation(summary = "Get task by ID", description = "Returns a single task by its identifier", deprecated = true)
     @ApiResponse(responseCode = "200", description = "Task retrieved successfully")
     @ApiResponse(responseCode = "401", description = "Unauthorized access")

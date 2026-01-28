@@ -116,6 +116,7 @@ src/main/java/com/taskify/taskify
 - Asynchronous audit logging of business-critical events (authentication and task lifecycle)
 - **Idempotent Write Operations**: Support for `Idempotency-Key` header on task creation to prevent duplicate processing on retries.
 - **Focus Mode**: A decision-support endpoint that returns the top 5 most urgent and high-priority tasks for the user.
+- **Stagnant Tasks**: A UX-insight endpoint that identifies blocked or neglected work using time-based signals (overdue, inactive, stalled progress).
 
 ## Caching & Performance
 
@@ -140,7 +141,7 @@ src/main/java/com/taskify/taskify
     - Caching behavior and invalidation logic.
     - Advanced query and ownership enforcement tests.
     - **Idempotency and Retry Safety tests**.
-    - **API Deprecation and Focus Mode integration tests**.
+    - **API Deprecation, Focus Mode, and Stagnant Tasks integration tests**.
 
 ## API Endpoints
 
@@ -153,6 +154,7 @@ src/main/java/com/taskify/taskify
 ### Tasks
 - `GET /api/v1/tasks`: Search, filter, and paginate tasks.
 - `GET /api/v1/tasks/focus`: Get the top 5 urgent and prioritized tasks for Focus Mode.
+- `GET /api/v1/tasks/stagnant`: Identify work that is blocked or neglected.
 - `GET /api/v1/tasks/{id}`: Retrieve specific task details.
 - `POST /api/v1/tasks`: Create a new task. (Supports `Idempotency-Key` header)
 - `PUT /api/v1/tasks/{id}`: Update an existing task.
