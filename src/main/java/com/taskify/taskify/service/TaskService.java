@@ -2,6 +2,7 @@ package com.taskify.taskify.service;
 
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
+import com.taskify.taskify.dto.TaskReviewResponse;
 import com.taskify.taskify.model.Priority;
 import com.taskify.taskify.model.Status;
 import org.springframework.data.domain.Page;
@@ -34,4 +35,6 @@ public interface TaskService {
             Pageable pageable);
 
     List<TaskResponse> getStagnantTasks();
+
+    TaskReviewResponse getWeeklyReview();
 }

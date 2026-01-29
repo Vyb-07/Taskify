@@ -2,8 +2,11 @@ package com.taskify.taskify.service.impl;
 
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
+import com.taskify.taskify.dto.TaskReviewResponse;
+import com.taskify.taskify.dto.TaskSummary;
 import com.taskify.taskify.exception.TaskNotFoundException;
 import com.taskify.taskify.model.*;
+import com.taskify.taskify.repository.AuditLogRepository;
 import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.TaskSpecification;
 import com.taskify.taskify.repository.UserRepository;
@@ -41,14 +44,17 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final AuditLogRepository auditLogRepository;
     private final AuditService auditService;
     private final CacheManager cacheManager;
     private final MeterRegistry meterRegistry;
 
     public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository,
-            AuditService auditService, CacheManager cacheManager, MeterRegistry meterRegistry) {
+            AuditLogRepository auditLogRepository, AuditService auditService,
+            CacheManager cacheManager, MeterRegistry meterRegistry) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.auditLogRepository = auditLogRepository;
         this.auditService = auditService;
         this.cacheManager = cacheManager;
         this.meterRegistry = meterRegistry;
@@ -170,6 +176,7 @@ public class TaskServiceImpl implements TaskService {
                 currentUser.getUsername(), focusTasks.size());
 
         meterRegistry.counter("taskify.tasks.focus_mode_usage").increment();
+        auditService.logEvent(AuditAction.FOCUS_MODE_USAGE, AuditTargetType.TASK, null, null);
 
         return focusTasks.stream()
                 .map(this::mapToResponse)
@@ -201,10 +208,88 @@ public class TaskServiceImpl implements TaskService {
                 currentUser.getUsername(), stagnantTasks.size());
 
         meterRegistry.counter("taskify.tasks.stagnant_mode_usage").increment();
+        auditService.logEvent(AuditAction.STAGNANT_MODE_USAGE, AuditTargetType.TASK, null, null);
 
         return stagnantTasks.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public TaskReviewResponse getWeeklyReview() {
+        User currentUser = getCurrentUser();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime sevenDaysAgo = now.minusDays(7);
+
+        // Aggregation logic
+        long created = taskRepository.count(Specification.allOf(
+                TaskSpecification.withOwner(currentUser),
+                TaskSpecification.withCreatedBetween(sevenDaysAgo, now)));
+
+        long completed = auditLogRepository.countByActorUserIdAndActionAndTimestampBetween(
+                currentUser.getId(), AuditAction.TASK_UPDATE, sevenDaysAgo, now);
+        // Note: This is an approximation. A more accurate way would be to check status
+        // change in metadata,
+        // but for this UX feature, we'll keep it simple and deterministic.
+
+        // Count tasks currently stagnant
+        LocalDateTime overdueThreshold = now.minusDays(2);
+        LocalDateTime inProgressThreshold = now.minusDays(3);
+        LocalDateTime pendingThreshold = now.minusDays(7);
+        long stagnant = taskRepository.count(Specification.allOf(
+                TaskSpecification.withOwner(currentUser),
+                TaskSpecification.isNotDeleted(),
+                TaskSpecification.isNotStatus(Status.COMPLETED),
+                TaskSpecification.isStagnant(now, overdueThreshold, inProgressThreshold, pendingThreshold)));
+
+        long overdue = taskRepository.count(Specification.allOf(
+                TaskSpecification.withOwner(currentUser),
+                TaskSpecification.isNotDeleted(),
+                TaskSpecification.isNotStatus(Status.COMPLETED),
+                TaskSpecification.withDueBetween(null, now)));
+
+        long focusUsages = auditLogRepository.countByActorUserIdAndActionAndTimestampBetween(
+                currentUser.getId(), AuditAction.FOCUS_MODE_USAGE, sevenDaysAgo, now);
+
+        TaskSummary summary = new TaskSummary(created, completed, stagnant, overdue, focusUsages);
+        List<String> insights = generateInsights(summary);
+
+        log.debug("Weekly review generated for user: {}. Created: {}, Completed: {}",
+                currentUser.getUsername(), created, completed);
+
+        meterRegistry.counter("taskify.tasks.review_mode_usage").increment();
+
+        return new TaskReviewResponse("last_7_days", summary, insights);
+    }
+
+    private List<String> generateInsights(TaskSummary summary) {
+        java.util.List<String> insights = new java.util.ArrayList<>();
+
+        if (summary.getCreatedTasks() > summary.getCompletedTasks() + 2) {
+            insights.add("You're creating tasks faster than you're completing them. Consider a smaller focus area.");
+        } else if (summary.getCompletedTasks() > summary.getCreatedTasks() && summary.getCompletedTasks() > 0) {
+            insights.add("Great velocity! You're clearing your backlog effectively.");
+        }
+
+        if (summary.getStagnantTasks() > 3) {
+            insights.add(
+                    "Multiple tasks have stalled. It might be time to re-evaluate their priority or break them down.");
+        }
+
+        if (summary.getFocusModeUsages() > 5 && summary.getCompletedTasks() > 3) {
+            insights.add("Focus Mode seems to be helping your completion rate. Keep using it to stay on track.");
+        }
+
+        if (summary.getOverdueTasks() > 0) {
+            insights.add("You have " + summary.getOverdueTasks()
+                    + " overdue tasks. Addressing these first may unblock other work.");
+        }
+
+        if (insights.isEmpty()) {
+            insights.add("Your task patterns are stable. Keep up the consistent work.");
+        }
+
+        return insights;
     }
 
     @Override

@@ -7,5 +7,7 @@ public enum AuditAction {
     TOKEN_REFRESH,
     TASK_CREATE,
     TASK_UPDATE,
-    TASK_DELETE
+    TASK_DELETE,
+    FOCUS_MODE_USAGE,
+    STAGNANT_MODE_USAGE
 }

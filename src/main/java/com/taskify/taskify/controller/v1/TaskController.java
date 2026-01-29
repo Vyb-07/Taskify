@@ -4,6 +4,7 @@ import com.taskify.taskify.config.ApiDeprecated;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
+import com.taskify.taskify.dto.TaskReviewResponse;
 import com.taskify.taskify.model.Priority;
 import com.taskify.taskify.model.Status;
 import com.taskify.taskify.model.IdempotencyKey;
@@ -133,6 +134,15 @@ public class TaskController {
     @GetMapping("/stagnant")
     public ResponseEntity<List<TaskResponse>> getStagnantTasks() {
         return ResponseEntity.ok(taskService.getStagnantTasks());
+    }
+
+    @Operation(summary = "Get task review", description = "Returns behavioral insights and a summary of task activity over the last 7 days")
+    @ApiResponse(responseCode = "200", description = "Task review retrieved successfully")
+    @ApiResponse(responseCode = "401", description = "Unauthorized access")
+    @GetMapping("/review")
+    public ResponseEntity<TaskReviewResponse> getTaskReview(
+            @RequestParam(defaultValue = "weekly") String period) {
+        return ResponseEntity.ok(taskService.getWeeklyReview());
     }
 
     @Operation(summary = "Get task by ID", description = "Returns a single task by its identifier", deprecated = true)

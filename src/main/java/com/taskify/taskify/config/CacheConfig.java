@@ -51,6 +51,11 @@ public class CacheConfig {
                                 .maximumSize(10000) // One per active user
                                 .build());
 
+                cacheManager.registerCustomCache("weeklyReview", Caffeine.newBuilder()
+                                .expireAfterWrite(1, TimeUnit.HOURS)
+                                .maximumSize(5000)
+                                .build());
+
                 return cacheManager;
         }
 }
