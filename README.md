@@ -115,6 +115,7 @@ src/main/java/com/taskify/taskify
 - Unified task search endpoint with filtering, pagination, and sorting
 - Asynchronous audit logging of business-critical events (authentication and task lifecycle)
 - **Idempotent Write Operations**: Support for `Idempotency-Key` header on task creation to prevent duplicate processing on retries.
+- **Daily Check-in**: A lightweight intent-capture feature that preserves continuity across days by carrying forward unfinished tasks.
 - **Focus Mode**: A decision-support endpoint that returns the top 5 most urgent and high-priority tasks for the user.
 - **Stagnant Tasks**: A UX-insight endpoint that identifies blocked or neglected work using time-based signals (overdue, inactive, stalled progress).
 - **Weekly Review**: A reflective UX feature that provides aggregated behavioral insights and activity summaries over the last 7 days.
@@ -143,6 +144,7 @@ src/main/java/com/taskify/taskify
     - Advanced query and ownership enforcement tests.
     - **Idempotency and Retry Safety tests**.
     - **API Deprecation, Focus Mode, and Stagnant Tasks integration tests**.
+    - **Daily Check-in intent capture and carryover tests**.
     - **Weekly Review behavioral aggregation tests**.
 
 ## API Endpoints
@@ -158,6 +160,8 @@ src/main/java/com/taskify/taskify
 - `GET /api/v1/tasks/focus`: Get the top 5 urgent and prioritized tasks for Focus Mode.
 - `GET /api/v1/tasks/stagnant`: Identify work that is blocked or neglected.
 - `GET /api/v1/tasks/review`: Receive a behavioral summary and insights for the week.
+- `GET /api/v1/day/today`: Get today's intent, carryover tasks, and focus suggestions.
+- `POST /api/v1/day/check-in`: Capture what you intend to focus on today.
 - `GET /api/v1/tasks/{id}`: Retrieve specific task details.
 - `POST /api/v1/tasks`: Create a new task. (Supports `Idempotency-Key` header)
 - `PUT /api/v1/tasks/{id}`: Update an existing task.

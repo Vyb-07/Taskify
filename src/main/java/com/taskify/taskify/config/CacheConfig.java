@@ -56,6 +56,11 @@ public class CacheConfig {
                                 .maximumSize(5000)
                                 .build());
 
+                cacheManager.registerCustomCache("dailyCheckIn", Caffeine.newBuilder()
+                                .expireAfterWrite(5, TimeUnit.MINUTES)
+                                .maximumSize(5000)
+                                .build());
+
                 return cacheManager;
         }
 }
