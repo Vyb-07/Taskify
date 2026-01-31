@@ -36,6 +36,10 @@ public class TaskRequest {
     @FutureOrPresent(message = "dueDate cannot be in the past")
     private LocalDateTime dueDate;
 
+    @Schema(description = "The 'why' behind this task", example = "Required for regulatory compliance", maxLength = 500)
+    @Size(max = 500, message = "rationale must be <= 500 characters")
+    private String rationale;
+
     public TaskRequest() {
     }
 
@@ -78,5 +82,13 @@ public class TaskRequest {
 
     public void setDueDate(LocalDateTime dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public String getRationale() {
+        return rationale;
+    }
+
+    public void setRationale(String rationale) {
+        this.rationale = rationale;
     }
 }

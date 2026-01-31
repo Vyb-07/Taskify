@@ -30,6 +30,9 @@ public class Task {
     private LocalDateTime createdAt;
     private LocalDateTime lastModifiedAt;
 
+    @Column(length = 500)
+    private String rationale;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
@@ -41,10 +44,17 @@ public class Task {
     public Task() {
     }
 
-    // Constructor for convenience
+    // Original constructor for backward compatibility
     public Task(String title, String description, Status status, Priority priority, LocalDateTime dueDate, User owner) {
+        this(title, description, null, status, priority, dueDate, owner);
+    }
+
+    // New constructor with rationale
+    public Task(String title, String description, String rationale, Status status, Priority priority,
+            LocalDateTime dueDate, User owner) {
         this.title = title;
         this.description = description;
+        this.rationale = rationale;
         this.status = status;
         this.priority = priority != null ? priority : Priority.MEDIUM;
         this.dueDate = dueDate;
@@ -145,6 +155,14 @@ public class Task {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public String getRationale() {
+        return rationale;
+    }
+
+    public void setRationale(String rationale) {
+        this.rationale = rationale;
     }
 
     public Integer getVersion() {

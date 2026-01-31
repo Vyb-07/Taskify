@@ -71,6 +71,7 @@ public class TaskServiceImpl implements TaskService {
                 request.getPriority(),
                 request.getDueDate(),
                 currentUser);
+        task.setRationale(request.getRationale());
 
         Task savedTask = taskRepository.save(task);
 
@@ -109,6 +110,7 @@ public class TaskServiceImpl implements TaskService {
         existingTask.setDescription(request.getDescription());
         existingTask.setStatus(request.getStatus());
         existingTask.setDueDate(request.getDueDate());
+        existingTask.setRationale(request.getRationale());
 
         try {
             Task updatedTask = taskRepository.save(existingTask);
@@ -369,6 +371,7 @@ public class TaskServiceImpl implements TaskService {
                 task.getId(),
                 task.getTitle(),
                 task.getDescription(),
+                task.getRationale(),
                 task.getStatus(),
                 task.getPriority(),
                 task.getDueDate(),

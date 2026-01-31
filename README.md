@@ -116,6 +116,7 @@ src/main/java/com/taskify/taskify
 - Asynchronous audit logging of business-critical events (authentication and task lifecycle)
 - **Idempotent Write Operations**: Support for `Idempotency-Key` header on task creation to prevent duplicate processing on retries.
 - **Daily Check-in**: A lightweight intent-capture feature that preserves continuity across days by carrying forward unfinished tasks.
+- **Task Rationale**: Preserve the "why" behind a task with an optional rationale field.
 - **Focus Mode**: A decision-support endpoint that returns the top 5 most urgent and high-priority tasks for the user.
 - **Stagnant Tasks**: A UX-insight endpoint that identifies blocked or neglected work using time-based signals (overdue, inactive, stalled progress).
 - **Weekly Review**: A reflective UX feature that provides aggregated behavioral insights and activity summaries over the last 7 days.

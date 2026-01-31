@@ -33,15 +33,19 @@ public class TaskResponse {
     @Schema(description = "Timestamp when the task was created", example = "2026-01-14T23:07:31")
     private LocalDateTime createdAt;
 
+    @Schema(description = "The 'why' behind this task", example = "Required for regulatory compliance")
+    private String rationale;
+
     public TaskResponse() {
     }
 
-    public TaskResponse(long id, String title, String description, Status status, Priority priority,
+    public TaskResponse(long id, String title, String description, String rationale, Status status, Priority priority,
             LocalDateTime dueDate,
             LocalDateTime createdAt) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.rationale = rationale;
         this.status = status;
         this.priority = priority;
         this.dueDate = dueDate;
@@ -75,5 +79,9 @@ public class TaskResponse {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public String getRationale() {
+        return rationale;
     }
 }

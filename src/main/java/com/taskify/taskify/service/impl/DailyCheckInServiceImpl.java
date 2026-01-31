@@ -159,6 +159,7 @@ public class DailyCheckInServiceImpl implements DailyCheckInService {
                 task.getId(),
                 task.getTitle(),
                 task.getDescription(),
+                task.getRationale(),
                 task.getStatus(),
                 task.getPriority(),
                 task.getDueDate(),
