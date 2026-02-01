@@ -6,6 +6,7 @@ import com.taskify.taskify.dto.RegisterRequest;
 import com.taskify.taskify.model.Role;
 import com.taskify.taskify.repository.RefreshTokenRepository;
 import com.taskify.taskify.repository.RoleRepository;
+import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.UserRepository;
 import com.taskify.taskify.service.RateLimitService;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,9 +47,13 @@ public class AuthControllerTest {
     @Autowired
     private RateLimitService rateLimitService;
 
+    @Autowired
+    private TaskRepository taskRepository;
+
     @BeforeEach
     void setUp() {
         rateLimitService.clearBuckets();
+        taskRepository.deleteAll();
         refreshTokenRepository.deleteAll();
         userRepository.deleteAll();
         roleRepository.findByName("ROLE_USER")

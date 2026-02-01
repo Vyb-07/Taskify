@@ -41,6 +41,19 @@ public class GlobalExceptionHandler {
                 return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
 
+        @ExceptionHandler(IllegalArgumentException.class)
+        public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException ex,
+                        WebRequest request) {
+                ApiError error = new ApiError(
+                                LocalDateTime.now(),
+                                HttpStatus.BAD_REQUEST.value(),
+                                "Bad Request",
+                                ex.getMessage(),
+                                request.getDescription(false).replace("uri=", ""));
+                logger.warn("Invalid argument: {}", ex.getMessage());
+                return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        }
+
         // 🧩 2️⃣ Handle @Valid body validation errors (POST/PUT)
         @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<ApiError> handleValidationErrors(MethodArgumentNotValidException ex, WebRequest request) {

@@ -4,6 +4,7 @@ import com.taskify.taskify.model.*;
 import com.taskify.taskify.repository.RoleRepository;
 import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.UserRepository;
+import com.taskify.taskify.repository.RefreshTokenRepository;
 import com.taskify.taskify.security.SecurityConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,13 +41,23 @@ public class TaskQueryIntegrationTest {
         @Autowired
         private RoleRepository roleRepository;
 
+        @Autowired
+        private RefreshTokenRepository refreshTokenRepository;
+
+        @Autowired
+        private org.springframework.cache.CacheManager cacheManager;
+
         private User user;
         private User admin;
 
         @BeforeEach
         void setUp() {
                 taskRepository.deleteAll();
+                refreshTokenRepository.deleteAll();
                 userRepository.deleteAll();
+
+                // Clear caches
+                cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).clear());
 
                 Role userRole = roleRepository.findByName(SecurityConstants.ROLE_USER)
                                 .orElseGet(() -> roleRepository.save(new Role(SecurityConstants.ROLE_USER)));

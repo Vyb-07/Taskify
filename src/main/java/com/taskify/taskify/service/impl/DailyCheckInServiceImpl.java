@@ -163,6 +163,8 @@ public class DailyCheckInServiceImpl implements DailyCheckInService {
                 task.getStatus(),
                 task.getPriority(),
                 task.getDueDate(),
-                task.getCreatedAt());
+                task.getCreatedAt(),
+                task.getIntentBucket() != null ? task.getIntentBucket().getId() : null,
+                task.getIntentBucket() != null ? task.getIntentBucket().getName() : null);
     }
 }

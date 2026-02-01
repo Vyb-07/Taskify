@@ -40,6 +40,9 @@ public class TaskRequest {
     @Size(max = 500, message = "rationale must be <= 500 characters")
     private String rationale;
 
+    @Schema(description = "Optional ID of the intent bucket this task belongs to", example = "1")
+    private Long intentBucketId;
+
     public TaskRequest() {
     }
 
@@ -90,5 +93,13 @@ public class TaskRequest {
 
     public void setRationale(String rationale) {
         this.rationale = rationale;
+    }
+
+    public Long getIntentBucketId() {
+        return intentBucketId;
+    }
+
+    public void setIntentBucketId(Long intentBucketId) {
+        this.intentBucketId = intentBucketId;
     }
 }

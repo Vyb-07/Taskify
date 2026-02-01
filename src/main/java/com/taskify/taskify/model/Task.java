@@ -37,6 +37,10 @@ public class Task {
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "intent_bucket_id")
+    private IntentBucket intentBucket;
+
     @Version
     private Integer version;
 
@@ -163,6 +167,14 @@ public class Task {
 
     public void setRationale(String rationale) {
         this.rationale = rationale;
+    }
+
+    public IntentBucket getIntentBucket() {
+        return intentBucket;
+    }
+
+    public void setIntentBucket(IntentBucket intentBucket) {
+        this.intentBucket = intentBucket;
     }
 
     public Integer getVersion() {

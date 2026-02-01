@@ -11,6 +11,7 @@ import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.TaskSpecification;
 import com.taskify.taskify.repository.UserRepository;
 import com.taskify.taskify.security.SecurityConstants;
+import com.taskify.taskify.repository.IntentBucketRepository;
 import com.taskify.taskify.service.AuditService;
 import com.taskify.taskify.service.TaskService;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -48,16 +49,19 @@ public class TaskServiceImpl implements TaskService {
     private final AuditService auditService;
     private final CacheManager cacheManager;
     private final MeterRegistry meterRegistry;
+    private final IntentBucketRepository intentBucketRepository;
 
     public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository,
             AuditLogRepository auditLogRepository, AuditService auditService,
-            CacheManager cacheManager, MeterRegistry meterRegistry) {
+            CacheManager cacheManager, MeterRegistry meterRegistry,
+            IntentBucketRepository intentBucketRepository) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.auditLogRepository = auditLogRepository;
         this.auditService = auditService;
         this.cacheManager = cacheManager;
         this.meterRegistry = meterRegistry;
+        this.intentBucketRepository = intentBucketRepository;
     }
 
     @Override
@@ -72,6 +76,13 @@ public class TaskServiceImpl implements TaskService {
                 request.getDueDate(),
                 currentUser);
         task.setRationale(request.getRationale());
+        if (request.getIntentBucketId() != null) {
+            IntentBucket bucket = intentBucketRepository
+                    .findByIdAndUserId(request.getIntentBucketId(), currentUser.getId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Invalid intentBucketId: " + request.getIntentBucketId()));
+            task.setIntentBucket(bucket);
+        }
 
         Task savedTask = taskRepository.save(task);
 
@@ -111,6 +122,16 @@ public class TaskServiceImpl implements TaskService {
         existingTask.setStatus(request.getStatus());
         existingTask.setDueDate(request.getDueDate());
         existingTask.setRationale(request.getRationale());
+
+        if (request.getIntentBucketId() != null) {
+            IntentBucket bucket = intentBucketRepository
+                    .findByIdAndUserId(request.getIntentBucketId(), getCurrentUser().getId())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Invalid intentBucketId: " + request.getIntentBucketId()));
+            existingTask.setIntentBucket(bucket);
+        } else {
+            existingTask.setIntentBucket(null);
+        }
 
         try {
             Task updatedTask = taskRepository.save(existingTask);
@@ -303,6 +324,7 @@ public class TaskServiceImpl implements TaskService {
             LocalDateTime toDate,
             LocalDateTime dueFrom,
             LocalDateTime dueTo,
+            Long intentId,
             String keyword,
             boolean includeDeleted,
             Pageable pageable) {
@@ -332,7 +354,8 @@ public class TaskServiceImpl implements TaskService {
                 .and(TaskSpecification.withPriority(priority))
                 .and(TaskSpecification.withKeyword(keyword))
                 .and(TaskSpecification.withCreatedBetween(fromDate, toDate))
-                .and(TaskSpecification.withDueBetween(dueFrom, dueTo));
+                .and(TaskSpecification.withDueBetween(dueFrom, dueTo))
+                .and(TaskSpecification.withIntent(intentId));
 
         Page<Task> tasks = taskRepository.findAll(spec, pageable);
         return tasks.map(this::mapToResponse);
@@ -375,6 +398,8 @@ public class TaskServiceImpl implements TaskService {
                 task.getStatus(),
                 task.getPriority(),
                 task.getDueDate(),
-                task.getCreatedAt());
+                task.getCreatedAt(),
+                task.getIntentBucket() != null ? task.getIntentBucket().getId() : null,
+                task.getIntentBucket() != null ? task.getIntentBucket().getName() : null);
     }
 }

@@ -1,0 +1,320 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< com.taskify:taskify >-------------------------
+[INFO] Building taskify 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ taskify ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ taskify ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ taskify ---
+[INFO] Copying 1 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ taskify ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.4:test (default-test) @ taskify ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.taskify.taskify.controller.v1.IntentBucketIntegrationTest
+22:56:43.833 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.taskify.taskify.controller.v1.IntentBucketIntegrationTest]: IntentBucketIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+22:56:43.926 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.taskify.taskify.TaskifyApplication for test class com.taskify.taskify.controller.v1.IntentBucketIntegrationTest
+22:56:44.005 [main] INFO org.springframework.boot.devtools.restart.RestartApplicationListener -- Restart disabled due to context in which it is running
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-02-01 22:56:44.148 INFO  [main] c.t.t.c.v.IntentBucketIntegrationTest - [correlationId=, userId=] - Starting IntentBucketIntegrationTest using Java 21.0.1 with PID 41291 (started by vyb in /Users/vyb/Documents/Projects/taskify)
+2026-02-01 22:56:44.148 DEBUG [main] c.t.t.c.v.IntentBucketIntegrationTest - [correlationId=, userId=] - Running with Spring Boot v3.5.7, Spring v6.2.12
+2026-02-01 22:56:44.148 INFO  [main] c.t.t.c.v.IntentBucketIntegrationTest - [correlationId=, userId=] - The following 1 profile is active: "test"
+2026-02-01 22:56:44.619 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - [correlationId=, userId=] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-01 22:56:44.655 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - [correlationId=, userId=] - Finished Spring Data repository scanning in 30 ms. Found 8 JPA repository interfaces.
+2026-02-01 22:56:44.922 INFO  [main] o.h.jpa.internal.util.LogHelper - [correlationId=, userId=] - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-01 22:56:44.945 INFO  [main] org.hibernate.Version - [correlationId=, userId=] - HHH000412: Hibernate ORM core version 6.6.33.Final
+2026-02-01 22:56:44.959 INFO  [main] o.h.c.i.RegionFactoryInitiator - [correlationId=, userId=] - HHH000026: Second-level cache disabled
+2026-02-01 22:56:45.167 INFO  [main] o.s.o.j.p.SpringPersistenceUnitInfo - [correlationId=, userId=] - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-01 22:56:45.197 INFO  [main] com.zaxxer.hikari.HikariDataSource - [correlationId=, userId=] - HikariPool-1 - Starting...
+2026-02-01 22:56:45.288 INFO  [main] com.zaxxer.hikari.pool.HikariPool - [correlationId=, userId=] - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2026-02-01 22:56:45.289 INFO  [main] com.zaxxer.hikari.HikariDataSource - [correlationId=, userId=] - HikariPool-1 - Start completed.
+2026-02-01 22:56:45.300 WARN  [main] org.hibernate.orm.deprecation - [correlationId=, userId=] - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-01 22:56:45.309 INFO  [main] o.hibernate.orm.connections.pooling - [correlationId=, userId=] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-02-01 22:56:45.819 INFO  [main] o.h.e.t.j.p.i.JtaPlatformInitiator - [correlationId=, userId=] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: drop table if exists audit_logs cascade 
+Hibernate: drop table if exists daily_intent_tasks cascade 
+Hibernate: drop table if exists daily_intents cascade 
+Hibernate: drop table if exists idempotency_keys cascade 
+Hibernate: drop table if exists intent_buckets cascade 
+Hibernate: drop table if exists refresh_tokens cascade 
+Hibernate: drop table if exists roles cascade 
+Hibernate: drop table if exists tasks cascade 
+Hibernate: drop table if exists user_roles cascade 
+Hibernate: drop table if exists users cascade 
+Hibernate: create table audit_logs (actor_user_id bigint, id bigint generated by default as identity, timestamp timestamp(6) not null, actor_role varchar(255), ip_address varchar(255), metadata TEXT, target_id varchar(255), action enum ('DAILY_CHECK_IN_CREATE','DAILY_CHECK_IN_UPDATE','FOCUS_MODE_USAGE','INTENT_BUCKET_CREATE','INTENT_BUCKET_DELETE','LOGIN_FAILURE','LOGIN_SUCCESS','LOGOUT','STAGNANT_MODE_USAGE','TASK_CREATE','TASK_DELETE','TASK_UPDATE','TOKEN_REFRESH') not null, target_type enum ('AUTH','TASK','USER'), primary key (id))
+Hibernate: create table daily_intent_tasks (daily_intent_id bigint not null, task_id bigint)
+Hibernate: create table daily_intents (date date not null, created_at timestamp(6) not null, id bigint generated by default as identity, updated_at timestamp(6) not null, user_id bigint not null, note varchar(255), primary key (id), unique (user_id, date))
+Hibernate: create table idempotency_keys (response_status integer not null, created_at timestamp(6) not null, expires_at timestamp(6) not null, id bigint generated by default as identity, user_id bigint not null, endpoint varchar(255) not null, idempotency_key varchar(255) not null, request_hash varchar(255) not null, response_body TEXT, primary key (id), constraint idx_idempotency_key_user unique (idempotency_key, user_id))
+Hibernate: create table intent_buckets (version integer, created_at timestamp(6), id bigint generated by default as identity, updated_at timestamp(6), user_id bigint not null, description varchar(500), color varchar(255), name varchar(255) not null, primary key (id), unique (user_id, name))
+Hibernate: create table refresh_tokens (revoked boolean not null, expiry_date timestamp(6) with time zone not null, id bigint generated by default as identity, user_id bigint, token varchar(255) not null unique, primary key (id))
+Hibernate: create table roles (id bigint generated by default as identity, name varchar(255) not null unique, primary key (id))
+Hibernate: create table tasks (deleted boolean not null, version integer, created_at timestamp(6), due_date timestamp(6), id bigint generated by default as identity, intent_bucket_id bigint, last_modified_at timestamp(6), user_id bigint not null, rationale varchar(500), description varchar(1000), title varchar(255) not null, priority enum ('HIGH','LOW','MEDIUM'), status enum ('COMPLETED','IN_PROGRESS','PENDING'), primary key (id))
+Hibernate: create table user_roles (role_id bigint not null, user_id bigint not null, primary key (role_id, user_id))
+Hibernate: create table users (created_at timestamp(6), id bigint generated by default as identity, email varchar(255) not null, password varchar(255) not null, username varchar(255) not null, primary key (id), unique (username), unique (email))
+Hibernate: alter table if exists daily_intent_tasks add constraint FK7svgswbqu8wenph5sih4su3x0 foreign key (daily_intent_id) references daily_intents
+Hibernate: alter table if exists refresh_tokens add constraint FK1lih5y2npsf8u5o3vhdb9y0os foreign key (user_id) references users
+Hibernate: alter table if exists tasks add constraint FK5sb4jslui6srum0s1vlhlo8pi foreign key (intent_bucket_id) references intent_buckets
+Hibernate: alter table if exists tasks add constraint FK6s1ob9k4ihi75xbxe2w0ylsdh foreign key (user_id) references users
+Hibernate: alter table if exists user_roles add constraint FKh8ciramu9cc9q3qcqiv4ue8a6 foreign key (role_id) references roles
+Hibernate: alter table if exists user_roles add constraint FKhfh9dx7w3ubf1co1vdev94g3f foreign key (user_id) references users
+2026-02-01 22:56:45.852 INFO  [main] o.s.o.j.LocalContainerEntityManagerFactoryBean - [correlationId=, userId=] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-01 22:56:46.078 INFO  [main] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - [correlationId=, userId=] - Global AuthenticationManager configured with UserDetailsService bean with name userDetailsServiceImpl
+2026-02-01 22:56:46.244 INFO  [main] o.s.d.j.r.query.QueryEnhancerFactory - [correlationId=, userId=] - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-01 22:56:46.533 WARN  [main] o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - [correlationId=, userId=] - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-01 22:56:46.761 INFO  [main] o.s.b.a.e.web.EndpointLinksResolver - [correlationId=, userId=] - Exposing 3 endpoints beneath base path '/actuator'
+2026-02-01 22:56:46.945 WARN  [main] i.m.c.i.b.cache.CaffeineCacheMetrics - [correlationId=, userId=] - The cache 'dailyCheckIn' is not recording statistics. No meters except 'cache.size' will be registered. Call 'Caffeine#recordStats()' prior to building the cache for metrics to be recorded.
+2026-02-01 22:56:46.946 WARN  [main] i.m.c.i.b.cache.CaffeineCacheMetrics - [correlationId=, userId=] - The cache 'taskVersions' is not recording statistics. No meters except 'cache.size' will be registered. Call 'Caffeine#recordStats()' prior to building the cache for metrics to be recorded.
+2026-02-01 22:56:46.946 WARN  [main] i.m.c.i.b.cache.CaffeineCacheMetrics - [correlationId=, userId=] - The cache 'intentOverview' is not recording statistics. No meters except 'cache.size' will be registered. Call 'Caffeine#recordStats()' prior to building the cache for metrics to be recorded.
+2026-02-01 22:56:46.947 WARN  [main] i.m.c.i.b.cache.CaffeineCacheMetrics - [correlationId=, userId=] - The cache 'weeklyReview' is not recording statistics. No meters except 'cache.size' will be registered. Call 'Caffeine#recordStats()' prior to building the cache for metrics to be recorded.
+2026-02-01 22:56:47.036 DEBUG [main] c.t.t.s.JwtAuthenticationFilter - [correlationId=, userId=] - Filter 'jwtAuthenticationFilter' configured for use
+2026-02-01 22:56:47.037 DEBUG [main] c.t.taskify.security.RateLimitFilter - [correlationId=, userId=] - Filter 'rateLimitFilter' configured for use
+2026-02-01 22:56:47.037 DEBUG [main] c.t.t.security.RequestLoggingFilter - [correlationId=, userId=] - Filter 'requestLoggingFilter' configured for use
+2026-02-01 22:56:47.037 INFO  [main] o.s.b.t.m.w.SpringBootMockServletContext - [correlationId=, userId=] - Initializing Spring TestDispatcherServlet ''
+2026-02-01 22:56:47.037 INFO  [main] o.s.t.w.s.TestDispatcherServlet - [correlationId=, userId=] - Initializing Servlet ''
+2026-02-01 22:56:47.038 INFO  [main] o.s.t.w.s.TestDispatcherServlet - [correlationId=, userId=] - Completed initialization in 1 ms
+2026-02-01 22:56:47.074 INFO  [main] c.t.t.c.v.IntentBucketIntegrationTest - [correlationId=, userId=] - Started IntentBucketIntegrationTest in 3.073 seconds (process running for 3.598)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (/Users/vyb/.m2/repository/net/bytebuddy/byte-buddy-agent/1.17.8/byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+Hibernate: select t1_0.id,t1_0.created_at,t1_0.deleted,t1_0.description,t1_0.due_date,t1_0.intent_bucket_id,t1_0.last_modified_at,t1_0.user_id,t1_0.priority,t1_0.rationale,t1_0.status,t1_0.title,t1_0.version from tasks t1_0
+Hibernate: select ib1_0.id,ib1_0.color,ib1_0.created_at,ib1_0.description,ib1_0.name,ib1_0.updated_at,ib1_0.user_id,ib1_0.version from intent_buckets ib1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+Hibernate: insert into intent_buckets (color,created_at,description,name,updated_at,user_id,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into intent_buckets (color,created_at,description,name,updated_at,user_id,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into tasks (created_at,deleted,description,due_date,intent_bucket_id,last_modified_at,user_id,priority,rationale,status,title,version,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into tasks (created_at,deleted,description,due_date,intent_bucket_id,last_modified_at,user_id,priority,rationale,status,title,version,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into tasks (created_at,deleted,description,due_date,intent_bucket_id,last_modified_at,user_id,priority,rationale,status,title,version,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+2026-02-01 22:56:47.495 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=5270e4c3-4edd-4e38-8cb4-4a61eb38b847, userId=] - Incoming request: method=GET, uri=/api/v1/intents/overview, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ib1_0.id,ib1_0.color,ib1_0.created_at,ib1_0.description,ib1_0.name,ib1_0.updated_at,ib1_0.user_id,ib1_0.version from intent_buckets ib1_0 where ib1_0.user_id=?
+Hibernate: select t1_0.id,t1_0.created_at,t1_0.deleted,t1_0.description,t1_0.due_date,t1_0.intent_bucket_id,t1_0.last_modified_at,t1_0.user_id,t1_0.priority,t1_0.rationale,t1_0.status,t1_0.title,t1_0.version from tasks t1_0 where t1_0.deleted=? and t1_0.user_id=? and t1_0.status<>? order by t1_0.due_date,t1_0.priority desc offset ? rows fetch first ? rows only
+Hibernate: select count(t1_0.id) from tasks t1_0 where t1_0.user_id=? and t1_0.deleted=? and t1_0.intent_bucket_id=?
+Hibernate: select count(t1_0.id) from tasks t1_0 where t1_0.user_id=? and t1_0.deleted=? and t1_0.intent_bucket_id=? and t1_0.status=?
+Hibernate: select count(t1_0.id) from tasks t1_0 where t1_0.user_id=? and t1_0.deleted=? and t1_0.intent_bucket_id=? and t1_0.status<>? and (t1_0.due_date<? and t1_0.last_modified_at<? or t1_0.status=? and t1_0.last_modified_at<? or t1_0.status=? and t1_0.last_modified_at<?)
+Hibernate: select count(t1_0.id) from tasks t1_0 where t1_0.user_id=? and t1_0.deleted=? and t1_0.intent_bucket_id=?
+Hibernate: select count(t1_0.id) from tasks t1_0 where t1_0.user_id=? and t1_0.deleted=? and t1_0.intent_bucket_id=? and t1_0.status=?
+Hibernate: select count(t1_0.id) from tasks t1_0 where t1_0.user_id=? and t1_0.deleted=? and t1_0.intent_bucket_id=? and t1_0.status<>? and (t1_0.due_date<? and t1_0.last_modified_at<? or t1_0.status=? and t1_0.last_modified_at<? or t1_0.status=? and t1_0.last_modified_at<?)
+2026-02-01 22:56:47.535 DEBUG [main] c.t.t.s.impl.IntentBucketServiceImpl - [correlationId=5270e4c3-4edd-4e38-8cb4-4a61eb38b847, userId=] - Generated Intent Overview for user: user1. Analyzed 2 buckets.
+2026-02-01 22:56:47.558 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=5270e4c3-4edd-4e38-8cb4-4a61eb38b847, userId=] - Outgoing response: method=GET, uri=/api/v1/intents/overview, status=200, duration=63ms
+
+MockHttpServletRequest:
+      HTTP Method = GET
+      Request URI = /api/v1/intents/overview
+       Parameters = {}
+          Headers = []
+             Body = null
+    Session Attrs = {}
+
+Handler:
+             Type = com.taskify.taskify.controller.v1.IntentBucketController
+           Method = com.taskify.taskify.controller.v1.IntentBucketController#getOverview()
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 200
+    Error message = null
+          Headers = [X-Correlation-ID:"5270e4c3-4edd-4e38-8cb4-4a61eb38b847", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", Cache-Control:"no-cache, no-store, max-age=0, must-revalidate", Pragma:"no-cache", Expires:"0", X-Frame-Options:"DENY"]
+     Content type = application/json
+             Body = {"insights":[{"id":1,"name":"Career","totalTasks":2,"completedTasks":1,"stagnantTasks":0,"focusPrevalence":0.5},{"id":2,"name":"Health","totalTasks":1,"completedTasks":0,"stagnantTasks":0,"focusPrevalence":0.5}]}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = GET
+      Request URI = /api/v1/intents/overview
+       Parameters = {}
+          Headers = []
+             Body = null
+    Session Attrs = {}
+
+Handler:
+             Type = com.taskify.taskify.controller.v1.IntentBucketController
+           Method = com.taskify.taskify.controller.v1.IntentBucketController#getOverview()
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = null
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 200
+    Error message = null
+          Headers = [X-Correlation-ID:"5270e4c3-4edd-4e38-8cb4-4a61eb38b847", Content-Type:"application/json", X-Content-Type-Options:"nosniff", X-XSS-Protection:"0", Cache-Control:"no-cache, no-store, max-age=0, must-revalidate", Pragma:"no-cache", Expires:"0", X-Frame-Options:"DENY"]
+     Content type = application/json
+             Body = {"insights":[{"id":1,"name":"Career","totalTasks":2,"completedTasks":1,"stagnantTasks":0,"focusPrevalence":0.5},{"id":2,"name":"Health","totalTasks":1,"completedTasks":0,"stagnantTasks":0,"focusPrevalence":0.5}]}
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+Hibernate: select t1_0.id,t1_0.created_at,t1_0.deleted,t1_0.description,t1_0.due_date,t1_0.intent_bucket_id,t1_0.last_modified_at,t1_0.user_id,t1_0.priority,t1_0.rationale,t1_0.status,t1_0.title,t1_0.version from tasks t1_0
+Hibernate: select ib1_0.id,ib1_0.color,ib1_0.created_at,ib1_0.description,ib1_0.name,ib1_0.updated_at,ib1_0.user_id,ib1_0.version from intent_buckets ib1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+Hibernate: insert into intent_buckets (color,created_at,description,name,updated_at,user_id,version,id) values (?,?,?,?,?,?,?,default)
+2026-02-01 22:56:47.603 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=97a9d733-42a0-43f6-bb74-3042ba584336, userId=] - Incoming request: method=GET, uri=/api/v1/intents, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ib1_0.id,ib1_0.color,ib1_0.created_at,ib1_0.description,ib1_0.name,ib1_0.updated_at,ib1_0.user_id,ib1_0.version from intent_buckets ib1_0 where ib1_0.user_id=?
+2026-02-01 22:56:47.607 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=97a9d733-42a0-43f6-bb74-3042ba584336, userId=] - Outgoing response: method=GET, uri=/api/v1/intents, status=200, duration=4ms
+Hibernate: select t1_0.id,t1_0.created_at,t1_0.deleted,t1_0.description,t1_0.due_date,t1_0.intent_bucket_id,t1_0.last_modified_at,t1_0.user_id,t1_0.priority,t1_0.rationale,t1_0.status,t1_0.title,t1_0.version from tasks t1_0
+Hibernate: select ib1_0.id,ib1_0.color,ib1_0.created_at,ib1_0.description,ib1_0.name,ib1_0.updated_at,ib1_0.user_id,ib1_0.version from intent_buckets ib1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+Hibernate: insert into intent_buckets (color,created_at,description,name,updated_at,user_id,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into tasks (created_at,deleted,description,due_date,intent_bucket_id,last_modified_at,user_id,priority,rationale,status,title,version,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+2026-02-01 22:56:47.618 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=b63d19c6-2f2a-469b-ab46-36a7fb4bd4c5, userId=] - Incoming request: method=DELETE, uri=/api/v1/intents/4, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ib1_0.id,ib1_0.color,ib1_0.created_at,ib1_0.description,ib1_0.name,ib1_0.updated_at,ib1_0.user_id,ib1_0.version from intent_buckets ib1_0 where ib1_0.id=? and ib1_0.user_id=?
+Hibernate: select t1_0.id,t1_0.created_at,t1_0.deleted,t1_0.description,t1_0.due_date,t1_0.intent_bucket_id,t1_0.last_modified_at,t1_0.user_id,t1_0.priority,t1_0.rationale,t1_0.status,t1_0.title,t1_0.version from tasks t1_0 where t1_0.intent_bucket_id=?
+2026-02-01 22:56:47.632 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=b63d19c6-2f2a-469b-ab46-36a7fb4bd4c5, userId=] - Outgoing response: method=DELETE, uri=/api/v1/intents/4, status=204, duration=14ms
+Hibernate: insert into audit_logs (action,actor_role,actor_user_id,ip_address,metadata,target_id,target_type,timestamp,id) values (?,?,?,?,?,?,?,?,default)
+2026-02-01 22:56:47.634 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=8a398a9b-11eb-4f68-8a19-95cb9c1aa3a7, userId=] - Incoming request: method=GET, uri=/api/v1/tasks/4, clientIp=127.0.0.1
+2026-02-01 22:56:47.635 WARN  [main] c.t.t.config.DeprecationInterceptor - [correlationId=8a398a9b-11eb-4f68-8a19-95cb9c1aa3a7, userId=] - Access to deprecated endpoint: method=GET, path=/api/v1/tasks/4, user=user1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+2026-02-01 22:56:47.739 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=8a398a9b-11eb-4f68-8a19-95cb9c1aa3a7, userId=] - Outgoing response: method=GET, uri=/api/v1/tasks/4, status=200, duration=105ms
+Hibernate: select t1_0.id,t1_0.created_at,t1_0.deleted,t1_0.description,t1_0.due_date,t1_0.intent_bucket_id,t1_0.last_modified_at,t1_0.user_id,t1_0.priority,t1_0.rationale,t1_0.status,t1_0.title,t1_0.version from tasks t1_0
+Hibernate: select ib1_0.id,ib1_0.color,ib1_0.created_at,ib1_0.description,ib1_0.name,ib1_0.updated_at,ib1_0.user_id,ib1_0.version from intent_buckets ib1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+Hibernate: insert into intent_buckets (color,created_at,description,name,updated_at,user_id,version,id) values (?,?,?,?,?,?,?,default)
+2026-02-01 22:56:47.804 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=1f437169-58ba-4585-8c28-6425c2320c69, userId=] - Incoming request: method=POST, uri=/api/v1/intents, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ib1_0.id from intent_buckets ib1_0 where ib1_0.user_id=? and ib1_0.name=? fetch first ? rows only
+2026-02-01 22:56:47.836 WARN  [main] c.t.t.e.GlobalExceptionHandler - [correlationId=1f437169-58ba-4585-8c28-6425c2320c69, userId=] - Invalid argument: Intent bucket with name 'Family' already exists
+2026-02-01 22:56:47.840 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=1f437169-58ba-4585-8c28-6425c2320c69, userId=] - Outgoing response: method=POST, uri=/api/v1/intents, status=400, duration=36ms
+Hibernate: select t1_0.id,t1_0.created_at,t1_0.deleted,t1_0.description,t1_0.due_date,t1_0.intent_bucket_id,t1_0.last_modified_at,t1_0.user_id,t1_0.priority,t1_0.rationale,t1_0.status,t1_0.title,t1_0.version from tasks t1_0
+Hibernate: select ib1_0.id,ib1_0.color,ib1_0.created_at,ib1_0.description,ib1_0.name,ib1_0.updated_at,ib1_0.user_id,ib1_0.version from intent_buckets ib1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+Hibernate: insert into intent_buckets (color,created_at,description,name,updated_at,user_id,version,id) values (?,?,?,?,?,?,?,default)
+2026-02-01 22:56:47.851 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=e0f44f5c-7c17-4325-bb5b-34a52fcb9d75, userId=] - Incoming request: method=POST, uri=/api/v1/tasks, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ib1_0.id,ib1_0.color,ib1_0.created_at,ib1_0.description,ib1_0.name,ib1_0.updated_at,ib1_0.user_id,ib1_0.version from intent_buckets ib1_0 where ib1_0.id=? and ib1_0.user_id=?
+Hibernate: insert into tasks (created_at,deleted,description,due_date,intent_bucket_id,last_modified_at,user_id,priority,rationale,status,title,version,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into audit_logs (action,actor_role,actor_user_id,ip_address,metadata,target_id,target_type,timestamp,id) values (?,?,?,?,?,?,?,?,default)
+2026-02-01 22:56:47.862 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=e0f44f5c-7c17-4325-bb5b-34a52fcb9d75, userId=] - Outgoing response: method=POST, uri=/api/v1/tasks, status=201, duration=11ms
+Hibernate: select t1_0.id,t1_0.created_at,t1_0.deleted,t1_0.description,t1_0.due_date,t1_0.intent_bucket_id,t1_0.last_modified_at,t1_0.user_id,t1_0.priority,t1_0.rationale,t1_0.status,t1_0.title,t1_0.version from tasks t1_0
+Hibernate: select ib1_0.id,ib1_0.color,ib1_0.created_at,ib1_0.description,ib1_0.name,ib1_0.updated_at,ib1_0.user_id,ib1_0.version from intent_buckets ib1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+2026-02-01 22:56:47.874 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=88b36d6e-c979-4003-8e36-5ea48181fb0e, userId=] - Incoming request: method=POST, uri=/api/v1/intents, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ib1_0.id from intent_buckets ib1_0 where ib1_0.user_id=? and ib1_0.name=? fetch first ? rows only
+Hibernate: insert into intent_buckets (color,created_at,description,name,updated_at,user_id,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into audit_logs (action,actor_role,actor_user_id,ip_address,metadata,target_id,target_type,timestamp,id) values (?,?,?,?,?,?,?,?,default)
+2026-02-01 22:56:47.878 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=88b36d6e-c979-4003-8e36-5ea48181fb0e, userId=] - Outgoing response: method=POST, uri=/api/v1/intents, status=201, duration=4ms
+2026-02-01 22:56:47.879 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=21fb0f81-b2f0-427b-99f9-854a0755cbdb, userId=] - Incoming request: method=GET, uri=/api/v1/intents, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ib1_0.id,ib1_0.color,ib1_0.created_at,ib1_0.description,ib1_0.name,ib1_0.updated_at,ib1_0.user_id,ib1_0.version from intent_buckets ib1_0 where ib1_0.user_id=?
+2026-02-01 22:56:47.881 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=21fb0f81-b2f0-427b-99f9-854a0755cbdb, userId=] - Outgoing response: method=GET, uri=/api/v1/intents, status=200, duration=2ms
+[ERROR] Tests run: 6, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 4.121 s <<< FAILURE! -- in com.taskify.taskify.controller.v1.IntentBucketIntegrationTest
+[ERROR] com.taskify.taskify.controller.v1.IntentBucketIntegrationTest.shouldGenerateOverviewWithInsights -- Time elapsed: 0.470 s <<< FAILURE!
+java.lang.AssertionError: JSON path "$.insights[?(@.name=='Health')].stagnantTasks" expected:<1> but was:<0>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
+	at org.springframework.test.util.JsonPathExpectationsHelper.assertValue(JsonPathExpectationsHelper.java:172)
+	at org.springframework.test.web.servlet.result.JsonPathResultMatchers.lambda$value$2(JsonPathResultMatchers.java:112)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+	at com.taskify.taskify.controller.v1.IntentBucketIntegrationTest.shouldGenerateOverviewWithInsights(IntentBucketIntegrationTest.java:193)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Failures: 
+[ERROR]   IntentBucketIntegrationTest.shouldGenerateOverviewWithInsights:193 JSON path "$.insights[?(@.name=='Health')].stagnantTasks" expected:<1> but was:<0>
+[INFO] 
+[ERROR] Tests run: 6, Failures: 1, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.193 s
+[INFO] Finished at: 2026-02-01T22:56:47+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.4:test (default-test) on project taskify: There are test failures.
+[ERROR] 
+[ERROR] See /Users/vyb/Documents/Projects/taskify/target/surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

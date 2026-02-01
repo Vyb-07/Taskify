@@ -3,6 +3,7 @@ package com.taskify.taskify.cache;
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.dto.TaskResponse;
 import com.taskify.taskify.model.*;
+import com.taskify.taskify.repository.RefreshTokenRepository;
 import com.taskify.taskify.repository.RoleRepository;
 import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.UserRepository;
@@ -17,7 +18,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -43,12 +43,16 @@ public class TaskCacheIntegrationTest {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
     private User user1;
     private User user2;
 
     @BeforeEach
     void setUp() {
         taskRepository.deleteAll();
+        refreshTokenRepository.deleteAll();
         userRepository.deleteAll();
 
         // Clear caches
@@ -81,7 +85,7 @@ public class TaskCacheIntegrationTest {
         Long taskId = task.getId();
 
         // First call - should populate cache
-        TaskResponse response1 = taskService.getTaskById(taskId);
+        taskService.getTaskById(taskId);
         Cache detailCache = cacheManager.getCache("taskDetails");
         assertNotNull(detailCache.get(taskId));
 
@@ -101,7 +105,7 @@ public class TaskCacheIntegrationTest {
     @Test
     @WithMockUser(username = "user1", roles = "USER")
     void shouldCacheAndInvalidateTaskLists() {
-        taskService.getAllTasks(null, null, null, null, null, null, null, false, PageRequest.of(0, 10));
+        taskService.getAllTasks(null, null, null, null, null, null, null, null, false, PageRequest.of(0, 10));
 
         Cache versionCache = cacheManager.getCache("taskVersions");
         String versionBefore = versionCache.get("user1", String.class);
@@ -122,7 +126,7 @@ public class TaskCacheIntegrationTest {
     @WithMockUser(username = "user1", roles = "USER")
     void shouldMaintainUserIsolationInCache() {
         // user1 populates list cache
-        taskService.getAllTasks(null, null, null, null, null, null, null, false, PageRequest.of(0, 10));
+        taskService.getAllTasks(null, null, null, null, null, null, null, null, false, PageRequest.of(0, 10));
 
         Cache versionCache = cacheManager.getCache("taskVersions");
         String user1VersionBefore = versionCache.get("user1", String.class);
@@ -137,7 +141,7 @@ public class TaskCacheIntegrationTest {
     @WithMockUser(username = "adminuser", roles = "ADMIN")
     void adminShouldHaveSeparateCacheKey() {
         // Just verify it populates for admin too
-        taskService.getAllTasks(null, null, null, null, null, null, null, false, PageRequest.of(0, 10));
+        taskService.getAllTasks(null, null, null, null, null, null, null, null, false, PageRequest.of(0, 10));
         Cache versionCache = cacheManager.getCache("taskVersions");
         assertNotNull(versionCache.get("adminuser", String.class));
     }

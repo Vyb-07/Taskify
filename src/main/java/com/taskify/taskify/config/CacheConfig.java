@@ -32,7 +32,7 @@ public class CacheConfig {
         @Bean
         public CacheManager cacheManager() {
                 CaffeineCacheManager cacheManager = new CaffeineCacheManager(
-                                "tasks", "taskDetails", "taskVersions");
+                                "tasks", "taskDetails", "taskVersions", "intentOverview");
 
                 cacheManager.registerCustomCache("tasks", Caffeine.newBuilder()
                                 .expireAfterWrite(tasksStatusTtl, TimeUnit.MINUTES)
@@ -57,6 +57,11 @@ public class CacheConfig {
                                 .build());
 
                 cacheManager.registerCustomCache("dailyCheckIn", Caffeine.newBuilder()
+                                .expireAfterWrite(5, TimeUnit.MINUTES)
+                                .maximumSize(5000)
+                                .build());
+
+                cacheManager.registerCustomCache("intentOverview", Caffeine.newBuilder()
                                 .expireAfterWrite(5, TimeUnit.MINUTES)
                                 .maximumSize(5000)
                                 .build());

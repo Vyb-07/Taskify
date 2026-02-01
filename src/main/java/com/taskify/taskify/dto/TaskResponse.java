@@ -36,12 +36,20 @@ public class TaskResponse {
     @Schema(description = "The 'why' behind this task", example = "Required for regulatory compliance")
     private String rationale;
 
+    @Schema(description = "ID of the intent bucket this task belongs to", example = "1")
+    private Long intentBucketId;
+
+    @Schema(description = "Name of the intent bucket this task belongs to", example = "Career Growth")
+    private String intentBucketName;
+
     public TaskResponse() {
     }
 
     public TaskResponse(long id, String title, String description, String rationale, Status status, Priority priority,
             LocalDateTime dueDate,
-            LocalDateTime createdAt) {
+            LocalDateTime createdAt,
+            Long intentBucketId,
+            String intentBucketName) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -50,6 +58,8 @@ public class TaskResponse {
         this.priority = priority;
         this.dueDate = dueDate;
         this.createdAt = createdAt;
+        this.intentBucketId = intentBucketId;
+        this.intentBucketName = intentBucketName;
     }
 
     // Getters only (we don't expect clients to set these)
@@ -83,5 +93,13 @@ public class TaskResponse {
 
     public String getRationale() {
         return rationale;
+    }
+
+    public Long getIntentBucketId() {
+        return intentBucketId;
+    }
+
+    public String getIntentBucketName() {
+        return intentBucketName;
     }
 }

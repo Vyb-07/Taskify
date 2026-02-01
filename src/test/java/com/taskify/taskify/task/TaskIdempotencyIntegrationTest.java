@@ -7,6 +7,7 @@ import com.taskify.taskify.model.Role;
 import com.taskify.taskify.model.Status;
 import com.taskify.taskify.model.User;
 import com.taskify.taskify.repository.IdempotencyKeyRepository;
+import com.taskify.taskify.repository.RefreshTokenRepository;
 import com.taskify.taskify.repository.RoleRepository;
 import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.UserRepository;
@@ -39,175 +40,186 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class TaskIdempotencyIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+        @Autowired
+        private ObjectMapper objectMapper;
 
-    @Autowired
-    private TaskRepository taskRepository;
+        @Autowired
+        private TaskRepository taskRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+        @Autowired
+        private UserRepository userRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+        @Autowired
+        private RoleRepository roleRepository;
 
-    @Autowired
-    private IdempotencyKeyRepository idempotencyKeyRepository;
+        @Autowired
+        private RefreshTokenRepository refreshTokenRepository;
 
-    private User user;
+        @Autowired
+        private IdempotencyKeyRepository idempotencyKeyRepository;
 
-    @BeforeEach
-    void setUp() {
-        taskRepository.deleteAll();
-        idempotencyKeyRepository.deleteAll();
-        userRepository.deleteAll();
+        @Autowired
+        private org.springframework.cache.CacheManager cacheManager;
 
-        Role userRole = roleRepository.findByName(SecurityConstants.ROLE_USER)
-                .orElseGet(() -> roleRepository.save(new Role(SecurityConstants.ROLE_USER)));
+        private User user;
 
-        user = new User("testuser", "test@example.com", "password");
-        user.setRoles(Set.of(userRole));
-        user = userRepository.save(user);
-    }
+        @BeforeEach
+        void setUp() {
+                taskRepository.deleteAll();
+                idempotencyKeyRepository.deleteAll();
+                refreshTokenRepository.deleteAll();
+                userRepository.deleteAll();
 
-    @Test
-    @WithMockUser(username = "testuser", roles = "USER")
-    void shouldCreateTaskAndStoreResponseOnFirstRequest() throws Exception {
-        TaskRequest request = new TaskRequest();
-        request.setTitle("Idempotent Task");
-        request.setDescription("Desc");
-        request.setStatus(Status.PENDING);
-        request.setPriority(Priority.MEDIUM);
+                // Clear caches
+                cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).clear());
 
-        String idempotencyKey = UUID.randomUUID().toString();
+                Role userRole = roleRepository.findByName(SecurityConstants.ROLE_USER)
+                                .orElseGet(() -> roleRepository.save(new Role(SecurityConstants.ROLE_USER)));
 
-        mockMvc.perform(post("/api/v1/tasks")
-                .header("Idempotency-Key", idempotencyKey)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.title", is("Idempotent Task")));
+                user = new User("testuser", "test@example.com", "password");
+                user.setRoles(Set.of(userRole));
+                user = userRepository.save(user);
+        }
 
-        assertEquals(1, taskRepository.count());
-        assertEquals(1, idempotencyKeyRepository.count());
-    }
+        @Test
+        @WithMockUser(username = "testuser", roles = "USER")
+        void shouldCreateTaskAndStoreResponseOnFirstRequest() throws Exception {
+                TaskRequest request = new TaskRequest();
+                request.setTitle("Idempotent Task");
+                request.setDescription("Desc");
+                request.setStatus(Status.PENDING);
+                request.setPriority(Priority.MEDIUM);
 
-    @Test
-    @WithMockUser(username = "testuser", roles = "USER")
-    void shouldReturnStoredResponseOnDuplicateRequest() throws Exception {
-        TaskRequest request = new TaskRequest();
-        request.setTitle("Idempotent Task");
-        request.setDescription("Desc");
-        request.setStatus(Status.PENDING);
-        request.setPriority(Priority.MEDIUM);
+                String idempotencyKey = UUID.randomUUID().toString();
 
-        String idempotencyKey = UUID.randomUUID().toString();
+                mockMvc.perform(post("/api/v1/tasks")
+                                .header("Idempotency-Key", idempotencyKey)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.title", is("Idempotent Task")));
 
-        // First request
-        MvcResult firstResult = mockMvc.perform(post("/api/v1/tasks")
-                .header("Idempotency-Key", idempotencyKey)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andReturn();
+                assertEquals(1, taskRepository.count());
+                assertEquals(1, idempotencyKeyRepository.count());
+        }
 
-        String firstResponse = firstResult.getResponse().getContentAsString();
+        @Test
+        @WithMockUser(username = "testuser", roles = "USER")
+        void shouldReturnStoredResponseOnDuplicateRequest() throws Exception {
+                TaskRequest request = new TaskRequest();
+                request.setTitle("Idempotent Task");
+                request.setDescription("Desc");
+                request.setStatus(Status.PENDING);
+                request.setPriority(Priority.MEDIUM);
 
-        // Second request
-        MvcResult secondResult = mockMvc.perform(post("/api/v1/tasks")
-                .header("Idempotency-Key", idempotencyKey)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andReturn();
+                String idempotencyKey = UUID.randomUUID().toString();
 
-        String secondResponse = secondResult.getResponse().getContentAsString();
+                // First request
+                MvcResult firstResult = mockMvc.perform(post("/api/v1/tasks")
+                                .header("Idempotency-Key", idempotencyKey)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isCreated())
+                                .andReturn();
 
-        assertEquals(firstResponse, secondResponse);
-        assertEquals(1, taskRepository.count(), "Should not create a second task");
-    }
+                String firstResponse = firstResult.getResponse().getContentAsString();
 
-    @Test
-    @WithMockUser(username = "testuser", roles = "USER")
-    void shouldRejectMismatchedPayloadWithSameKey() throws Exception {
-        TaskRequest request1 = new TaskRequest();
-        request1.setTitle("Task 1");
-        request1.setDescription("Desc");
-        request1.setStatus(Status.PENDING);
-        request1.setPriority(Priority.MEDIUM);
+                // Second request
+                MvcResult secondResult = mockMvc.perform(post("/api/v1/tasks")
+                                .header("Idempotency-Key", idempotencyKey)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isCreated())
+                                .andReturn();
 
-        TaskRequest request2 = new TaskRequest();
-        request2.setTitle("Task 2");
-        request2.setDescription("Desc");
-        request2.setStatus(Status.PENDING);
-        request2.setPriority(Priority.MEDIUM);
+                String secondResponse = secondResult.getResponse().getContentAsString();
 
-        String idempotencyKey = UUID.randomUUID().toString();
+                assertEquals(firstResponse, secondResponse);
+                assertEquals(1, taskRepository.count(), "Should not create a second task");
+        }
 
-        // First request
-        mockMvc.perform(post("/api/v1/tasks")
-                .header("Idempotency-Key", idempotencyKey)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request1)))
-                .andExpect(status().isCreated());
+        @Test
+        @WithMockUser(username = "testuser", roles = "USER")
+        void shouldRejectMismatchedPayloadWithSameKey() throws Exception {
+                TaskRequest request1 = new TaskRequest();
+                request1.setTitle("Task 1");
+                request1.setDescription("Desc");
+                request1.setStatus(Status.PENDING);
+                request1.setPriority(Priority.MEDIUM);
 
-        // Second request with different payload
-        mockMvc.perform(post("/api/v1/tasks")
-                .header("Idempotency-Key", idempotencyKey)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request2)))
-                .andExpect(status().isConflict()); // Or BadRequest depending on implementation, but implementation used
-                                                   // Conflict via IdempotencyException
+                TaskRequest request2 = new TaskRequest();
+                request2.setTitle("Task 2");
+                request2.setDescription("Desc");
+                request2.setStatus(Status.PENDING);
+                request2.setPriority(Priority.MEDIUM);
 
-        assertEquals(1, taskRepository.count());
-    }
+                String idempotencyKey = UUID.randomUUID().toString();
 
-    @Test
-    @WithMockUser(username = "testuser", roles = "USER")
-    void shouldCreateSeparateTasksWithDifferentKeys() throws Exception {
-        TaskRequest request = new TaskRequest();
-        request.setTitle("Shared Payload");
-        request.setDescription("Desc");
-        request.setStatus(Status.PENDING);
-        request.setPriority(Priority.MEDIUM);
+                // First request
+                mockMvc.perform(post("/api/v1/tasks")
+                                .header("Idempotency-Key", idempotencyKey)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request1)))
+                                .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/api/v1/tasks")
-                .header("Idempotency-Key", UUID.randomUUID().toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated());
+                // Second request with different payload
+                mockMvc.perform(post("/api/v1/tasks")
+                                .header("Idempotency-Key", idempotencyKey)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request2)))
+                                .andExpect(status().isConflict()); // Or BadRequest depending on implementation, but
+                                                                   // implementation used
+                                                                   // Conflict via IdempotencyException
 
-        mockMvc.perform(post("/api/v1/tasks")
-                .header("Idempotency-Key", UUID.randomUUID().toString())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated());
+                assertEquals(1, taskRepository.count());
+        }
 
-        assertEquals(2, taskRepository.count());
-    }
+        @Test
+        @WithMockUser(username = "testuser", roles = "USER")
+        void shouldCreateSeparateTasksWithDifferentKeys() throws Exception {
+                TaskRequest request = new TaskRequest();
+                request.setTitle("Shared Payload");
+                request.setDescription("Desc");
+                request.setStatus(Status.PENDING);
+                request.setPriority(Priority.MEDIUM);
 
-    @Test
-    @WithMockUser(username = "testuser", roles = "USER")
-    void shouldCreateTaskNormallyWhenKeyIsMissing() throws Exception {
-        TaskRequest request = new TaskRequest();
-        request.setTitle("No Key");
-        request.setDescription("Desc");
-        request.setStatus(Status.PENDING);
-        request.setPriority(Priority.MEDIUM);
+                mockMvc.perform(post("/api/v1/tasks")
+                                .header("Idempotency-Key", UUID.randomUUID().toString())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/api/v1/tasks")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated());
+                mockMvc.perform(post("/api/v1/tasks")
+                                .header("Idempotency-Key", UUID.randomUUID().toString())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/api/v1/tasks")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated());
+                assertEquals(2, taskRepository.count());
+        }
 
-        assertEquals(2, taskRepository.count());
-    }
+        @Test
+        @WithMockUser(username = "testuser", roles = "USER")
+        void shouldCreateTaskNormallyWhenKeyIsMissing() throws Exception {
+                TaskRequest request = new TaskRequest();
+                request.setTitle("No Key");
+                request.setDescription("Desc");
+                request.setStatus(Status.PENDING);
+                request.setPriority(Priority.MEDIUM);
+
+                mockMvc.perform(post("/api/v1/tasks")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isCreated());
+
+                mockMvc.perform(post("/api/v1/tasks")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isCreated());
+
+                assertEquals(2, taskRepository.count());
+        }
 }

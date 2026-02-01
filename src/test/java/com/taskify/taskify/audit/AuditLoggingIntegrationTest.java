@@ -9,6 +9,7 @@ import com.taskify.taskify.model.Role;
 import com.taskify.taskify.repository.AuditLogRepository;
 import com.taskify.taskify.repository.RefreshTokenRepository;
 import com.taskify.taskify.repository.RoleRepository;
+import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.UserRepository;
 import com.taskify.taskify.service.RateLimitService;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +47,9 @@ public class AuditLoggingIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
     private RoleRepository roleRepository;
 
     @Autowired
@@ -54,12 +58,19 @@ public class AuditLoggingIntegrationTest {
     @Autowired
     private RateLimitService rateLimitService;
 
+    @Autowired
+    private org.springframework.cache.CacheManager cacheManager;
+
     @BeforeEach
     void setUp() {
         rateLimitService.clearBuckets();
+        taskRepository.deleteAll();
         refreshTokenRepository.deleteAll();
         auditLogRepository.deleteAll();
         userRepository.deleteAll();
+
+        // Clear caches
+        cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).clear());
         roleRepository.findByName("ROLE_USER")
                 .orElseGet(() -> roleRepository.save(new Role("ROLE_USER")));
     }

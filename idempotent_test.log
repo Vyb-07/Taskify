@@ -1,0 +1,216 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< com.taskify:taskify >-------------------------
+[INFO] Building taskify 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ taskify ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ taskify ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ taskify ---
+[INFO] Copying 1 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ taskify ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.5.4:test (default-test) @ taskify ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.taskify.taskify.task.TaskIdempotencyIntegrationTest
+22:58:33.506 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.taskify.taskify.task.TaskIdempotencyIntegrationTest]: TaskIdempotencyIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+22:58:33.581 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.taskify.taskify.TaskifyApplication for test class com.taskify.taskify.task.TaskIdempotencyIntegrationTest
+22:58:33.695 [main] INFO org.springframework.boot.devtools.restart.RestartApplicationListener -- Restart disabled due to context in which it is running
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-02-01 22:58:33.903 INFO  [main] c.t.t.t.TaskIdempotencyIntegrationTest - [correlationId=, userId=] - Starting TaskIdempotencyIntegrationTest using Java 21.0.1 with PID 43112 (started by vyb in /Users/vyb/Documents/Projects/taskify)
+2026-02-01 22:58:33.903 DEBUG [main] c.t.t.t.TaskIdempotencyIntegrationTest - [correlationId=, userId=] - Running with Spring Boot v3.5.7, Spring v6.2.12
+2026-02-01 22:58:33.903 INFO  [main] c.t.t.t.TaskIdempotencyIntegrationTest - [correlationId=, userId=] - The following 1 profile is active: "test"
+2026-02-01 22:58:34.482 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - [correlationId=, userId=] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-01 22:58:34.515 INFO  [main] o.s.d.r.c.RepositoryConfigurationDelegate - [correlationId=, userId=] - Finished Spring Data repository scanning in 28 ms. Found 8 JPA repository interfaces.
+2026-02-01 22:58:34.813 INFO  [main] o.h.jpa.internal.util.LogHelper - [correlationId=, userId=] - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-02-01 22:58:34.862 INFO  [main] org.hibernate.Version - [correlationId=, userId=] - HHH000412: Hibernate ORM core version 6.6.33.Final
+2026-02-01 22:58:34.883 INFO  [main] o.h.c.i.RegionFactoryInitiator - [correlationId=, userId=] - HHH000026: Second-level cache disabled
+2026-02-01 22:58:35.029 INFO  [main] o.s.o.j.p.SpringPersistenceUnitInfo - [correlationId=, userId=] - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-02-01 22:58:35.043 INFO  [main] com.zaxxer.hikari.HikariDataSource - [correlationId=, userId=] - HikariPool-1 - Starting...
+2026-02-01 22:58:35.138 INFO  [main] com.zaxxer.hikari.pool.HikariPool - [correlationId=, userId=] - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2026-02-01 22:58:35.139 INFO  [main] com.zaxxer.hikari.HikariDataSource - [correlationId=, userId=] - HikariPool-1 - Start completed.
+2026-02-01 22:58:35.152 WARN  [main] org.hibernate.orm.deprecation - [correlationId=, userId=] - HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-02-01 22:58:35.160 INFO  [main] o.hibernate.orm.connections.pooling - [correlationId=, userId=] - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 2.3.232
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-02-01 22:58:35.603 INFO  [main] o.h.e.t.j.p.i.JtaPlatformInitiator - [correlationId=, userId=] - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: drop table if exists audit_logs cascade 
+Hibernate: drop table if exists daily_intent_tasks cascade 
+Hibernate: drop table if exists daily_intents cascade 
+Hibernate: drop table if exists idempotency_keys cascade 
+Hibernate: drop table if exists intent_buckets cascade 
+Hibernate: drop table if exists refresh_tokens cascade 
+Hibernate: drop table if exists roles cascade 
+Hibernate: drop table if exists tasks cascade 
+Hibernate: drop table if exists user_roles cascade 
+Hibernate: drop table if exists users cascade 
+Hibernate: create table audit_logs (actor_user_id bigint, id bigint generated by default as identity, timestamp timestamp(6) not null, actor_role varchar(255), ip_address varchar(255), metadata TEXT, target_id varchar(255), action enum ('DAILY_CHECK_IN_CREATE','DAILY_CHECK_IN_UPDATE','FOCUS_MODE_USAGE','INTENT_BUCKET_CREATE','INTENT_BUCKET_DELETE','LOGIN_FAILURE','LOGIN_SUCCESS','LOGOUT','STAGNANT_MODE_USAGE','TASK_CREATE','TASK_DELETE','TASK_UPDATE','TOKEN_REFRESH') not null, target_type enum ('AUTH','TASK','USER'), primary key (id))
+Hibernate: create table daily_intent_tasks (daily_intent_id bigint not null, task_id bigint)
+Hibernate: create table daily_intents (date date not null, created_at timestamp(6) not null, id bigint generated by default as identity, updated_at timestamp(6) not null, user_id bigint not null, note varchar(255), primary key (id), unique (user_id, date))
+Hibernate: create table idempotency_keys (response_status integer not null, created_at timestamp(6) not null, expires_at timestamp(6) not null, id bigint generated by default as identity, user_id bigint not null, endpoint varchar(255) not null, idempotency_key varchar(255) not null, request_hash varchar(255) not null, response_body TEXT, primary key (id), constraint idx_idempotency_key_user unique (idempotency_key, user_id))
+Hibernate: create table intent_buckets (version integer, created_at timestamp(6), id bigint generated by default as identity, updated_at timestamp(6), user_id bigint not null, description varchar(500), color varchar(255), name varchar(255) not null, primary key (id), unique (user_id, name))
+Hibernate: create table refresh_tokens (revoked boolean not null, expiry_date timestamp(6) with time zone not null, id bigint generated by default as identity, user_id bigint, token varchar(255) not null unique, primary key (id))
+Hibernate: create table roles (id bigint generated by default as identity, name varchar(255) not null unique, primary key (id))
+Hibernate: create table tasks (deleted boolean not null, version integer, created_at timestamp(6), due_date timestamp(6), id bigint generated by default as identity, intent_bucket_id bigint, last_modified_at timestamp(6), user_id bigint not null, rationale varchar(500), description varchar(1000), title varchar(255) not null, priority enum ('HIGH','LOW','MEDIUM'), status enum ('COMPLETED','IN_PROGRESS','PENDING'), primary key (id))
+Hibernate: create table user_roles (role_id bigint not null, user_id bigint not null, primary key (role_id, user_id))
+Hibernate: create table users (created_at timestamp(6), id bigint generated by default as identity, email varchar(255) not null, password varchar(255) not null, username varchar(255) not null, primary key (id), unique (username), unique (email))
+Hibernate: alter table if exists daily_intent_tasks add constraint FK7svgswbqu8wenph5sih4su3x0 foreign key (daily_intent_id) references daily_intents
+Hibernate: alter table if exists refresh_tokens add constraint FK1lih5y2npsf8u5o3vhdb9y0os foreign key (user_id) references users
+Hibernate: alter table if exists tasks add constraint FK5sb4jslui6srum0s1vlhlo8pi foreign key (intent_bucket_id) references intent_buckets
+Hibernate: alter table if exists tasks add constraint FK6s1ob9k4ihi75xbxe2w0ylsdh foreign key (user_id) references users
+Hibernate: alter table if exists user_roles add constraint FKh8ciramu9cc9q3qcqiv4ue8a6 foreign key (role_id) references roles
+Hibernate: alter table if exists user_roles add constraint FKhfh9dx7w3ubf1co1vdev94g3f foreign key (user_id) references users
+2026-02-01 22:58:35.632 INFO  [main] o.s.o.j.LocalContainerEntityManagerFactoryBean - [correlationId=, userId=] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-02-01 22:58:35.856 INFO  [main] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - [correlationId=, userId=] - Global AuthenticationManager configured with UserDetailsService bean with name userDetailsServiceImpl
+2026-02-01 22:58:36.024 INFO  [main] o.s.d.j.r.query.QueryEnhancerFactory - [correlationId=, userId=] - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-02-01 22:58:36.304 WARN  [main] o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - [correlationId=, userId=] - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-02-01 22:58:36.506 INFO  [main] o.s.b.a.e.web.EndpointLinksResolver - [correlationId=, userId=] - Exposing 3 endpoints beneath base path '/actuator'
+2026-02-01 22:58:36.717 WARN  [main] i.m.c.i.b.cache.CaffeineCacheMetrics - [correlationId=, userId=] - The cache 'dailyCheckIn' is not recording statistics. No meters except 'cache.size' will be registered. Call 'Caffeine#recordStats()' prior to building the cache for metrics to be recorded.
+2026-02-01 22:58:36.719 WARN  [main] i.m.c.i.b.cache.CaffeineCacheMetrics - [correlationId=, userId=] - The cache 'taskVersions' is not recording statistics. No meters except 'cache.size' will be registered. Call 'Caffeine#recordStats()' prior to building the cache for metrics to be recorded.
+2026-02-01 22:58:36.719 WARN  [main] i.m.c.i.b.cache.CaffeineCacheMetrics - [correlationId=, userId=] - The cache 'intentOverview' is not recording statistics. No meters except 'cache.size' will be registered. Call 'Caffeine#recordStats()' prior to building the cache for metrics to be recorded.
+2026-02-01 22:58:36.720 WARN  [main] i.m.c.i.b.cache.CaffeineCacheMetrics - [correlationId=, userId=] - The cache 'weeklyReview' is not recording statistics. No meters except 'cache.size' will be registered. Call 'Caffeine#recordStats()' prior to building the cache for metrics to be recorded.
+2026-02-01 22:58:36.794 DEBUG [main] c.t.t.s.JwtAuthenticationFilter - [correlationId=, userId=] - Filter 'jwtAuthenticationFilter' configured for use
+2026-02-01 22:58:36.794 DEBUG [main] c.t.taskify.security.RateLimitFilter - [correlationId=, userId=] - Filter 'rateLimitFilter' configured for use
+2026-02-01 22:58:36.794 DEBUG [main] c.t.t.security.RequestLoggingFilter - [correlationId=, userId=] - Filter 'requestLoggingFilter' configured for use
+2026-02-01 22:58:36.794 INFO  [main] o.s.b.t.m.w.SpringBootMockServletContext - [correlationId=, userId=] - Initializing Spring TestDispatcherServlet ''
+2026-02-01 22:58:36.794 INFO  [main] o.s.t.w.s.TestDispatcherServlet - [correlationId=, userId=] - Initializing Servlet ''
+2026-02-01 22:58:36.795 INFO  [main] o.s.t.w.s.TestDispatcherServlet - [correlationId=, userId=] - Completed initialization in 1 ms
+2026-02-01 22:58:36.831 INFO  [main] c.t.t.t.TaskIdempotencyIntegrationTest - [correlationId=, userId=] - Started TaskIdempotencyIntegrationTest in 3.141 seconds (process running for 4.025)
+Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+WARNING: A Java agent has been loaded dynamically (/Users/vyb/.m2/repository/net/bytebuddy/byte-buddy-agent/1.17.8/byte-buddy-agent-1.17.8.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+Hibernate: select t1_0.id,t1_0.created_at,t1_0.deleted,t1_0.description,t1_0.due_date,t1_0.intent_bucket_id,t1_0.last_modified_at,t1_0.user_id,t1_0.priority,t1_0.rationale,t1_0.status,t1_0.title,t1_0.version from tasks t1_0
+Hibernate: select ik1_0.id,ik1_0.created_at,ik1_0.endpoint,ik1_0.expires_at,ik1_0.idempotency_key,ik1_0.request_hash,ik1_0.response_body,ik1_0.response_status,ik1_0.user_id from idempotency_keys ik1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+2026-02-01 22:58:37.311 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=e0adfb7b-2d25-421b-93ea-965676b440ef, userId=] - Incoming request: method=POST, uri=/api/v1/tasks, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ik1_0.id,ik1_0.created_at,ik1_0.endpoint,ik1_0.expires_at,ik1_0.idempotency_key,ik1_0.request_hash,ik1_0.response_body,ik1_0.response_status,ik1_0.user_id from idempotency_keys ik1_0 where ik1_0.idempotency_key=? and ik1_0.user_id=? and ik1_0.endpoint=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: insert into tasks (created_at,deleted,description,due_date,intent_bucket_id,last_modified_at,user_id,priority,rationale,status,title,version,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into audit_logs (action,actor_role,actor_user_id,ip_address,metadata,target_id,target_type,timestamp,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into idempotency_keys (created_at,endpoint,expires_at,idempotency_key,request_hash,response_body,response_status,user_id,id) values (?,?,?,?,?,?,?,?,default)
+2026-02-01 22:58:37.377 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=e0adfb7b-2d25-421b-93ea-965676b440ef, userId=] - Outgoing response: method=POST, uri=/api/v1/tasks, status=201, duration=66ms
+2026-02-01 22:58:37.381 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=cec53112-f98d-476a-95e5-85b041ba1666, userId=] - Incoming request: method=POST, uri=/api/v1/tasks, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ik1_0.id,ik1_0.created_at,ik1_0.endpoint,ik1_0.expires_at,ik1_0.idempotency_key,ik1_0.request_hash,ik1_0.response_body,ik1_0.response_status,ik1_0.user_id from idempotency_keys ik1_0 where ik1_0.idempotency_key=? and ik1_0.user_id=? and ik1_0.endpoint=?
+2026-02-01 22:58:37.386 WARN  [main] c.t.t.e.GlobalExceptionHandler - [correlationId=cec53112-f98d-476a-95e5-85b041ba1666, userId=] - Idempotency error: Idempotency key reused with a different request payload.
+2026-02-01 22:58:37.388 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=cec53112-f98d-476a-95e5-85b041ba1666, userId=] - Outgoing response: method=POST, uri=/api/v1/tasks, status=409, duration=7ms
+Hibernate: select count(*) from tasks t1_0
+Hibernate: select t1_0.id,t1_0.created_at,t1_0.deleted,t1_0.description,t1_0.due_date,t1_0.intent_bucket_id,t1_0.last_modified_at,t1_0.user_id,t1_0.priority,t1_0.rationale,t1_0.status,t1_0.title,t1_0.version from tasks t1_0
+Hibernate: select ik1_0.id,ik1_0.created_at,ik1_0.endpoint,ik1_0.expires_at,ik1_0.idempotency_key,ik1_0.request_hash,ik1_0.response_body,ik1_0.response_status,ik1_0.user_id from idempotency_keys ik1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+2026-02-01 22:58:37.449 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=80d3d766-beab-47d1-ad2a-2fff8423a970, userId=] - Incoming request: method=POST, uri=/api/v1/tasks, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: insert into tasks (created_at,deleted,description,due_date,intent_bucket_id,last_modified_at,user_id,priority,rationale,status,title,version,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into audit_logs (action,actor_role,actor_user_id,ip_address,metadata,target_id,target_type,timestamp,id) values (?,?,?,?,?,?,?,?,default)
+2026-02-01 22:58:37.452 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=80d3d766-beab-47d1-ad2a-2fff8423a970, userId=] - Outgoing response: method=POST, uri=/api/v1/tasks, status=201, duration=3ms
+2026-02-01 22:58:37.454 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=805b1a29-d87f-4a70-a31d-4da3026c9e82, userId=] - Incoming request: method=POST, uri=/api/v1/tasks, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: insert into tasks (created_at,deleted,description,due_date,intent_bucket_id,last_modified_at,user_id,priority,rationale,status,title,version,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into audit_logs (action,actor_role,actor_user_id,ip_address,metadata,target_id,target_type,timestamp,id) values (?,?,?,?,?,?,?,?,default)
+2026-02-01 22:58:37.456 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=805b1a29-d87f-4a70-a31d-4da3026c9e82, userId=] - Outgoing response: method=POST, uri=/api/v1/tasks, status=201, duration=2ms
+Hibernate: select count(*) from tasks t1_0
+Hibernate: select t1_0.id,t1_0.created_at,t1_0.deleted,t1_0.description,t1_0.due_date,t1_0.intent_bucket_id,t1_0.last_modified_at,t1_0.user_id,t1_0.priority,t1_0.rationale,t1_0.status,t1_0.title,t1_0.version from tasks t1_0
+Hibernate: select ik1_0.id,ik1_0.created_at,ik1_0.endpoint,ik1_0.expires_at,ik1_0.idempotency_key,ik1_0.request_hash,ik1_0.response_body,ik1_0.response_status,ik1_0.user_id from idempotency_keys ik1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+2026-02-01 22:58:37.465 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=7f149dd7-0630-42fe-8bc4-fffb9906f941, userId=] - Incoming request: method=POST, uri=/api/v1/tasks, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ik1_0.id,ik1_0.created_at,ik1_0.endpoint,ik1_0.expires_at,ik1_0.idempotency_key,ik1_0.request_hash,ik1_0.response_body,ik1_0.response_status,ik1_0.user_id from idempotency_keys ik1_0 where ik1_0.idempotency_key=? and ik1_0.user_id=? and ik1_0.endpoint=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: insert into tasks (created_at,deleted,description,due_date,intent_bucket_id,last_modified_at,user_id,priority,rationale,status,title,version,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into audit_logs (action,actor_role,actor_user_id,ip_address,metadata,target_id,target_type,timestamp,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into idempotency_keys (created_at,endpoint,expires_at,idempotency_key,request_hash,response_body,response_status,user_id,id) values (?,?,?,?,?,?,?,?,default)
+2026-02-01 22:58:37.469 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=7f149dd7-0630-42fe-8bc4-fffb9906f941, userId=] - Outgoing response: method=POST, uri=/api/v1/tasks, status=201, duration=4ms
+2026-02-01 22:58:37.470 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=b3fccc78-3888-45a6-ad67-a4d4368dacd2, userId=] - Incoming request: method=POST, uri=/api/v1/tasks, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ik1_0.id,ik1_0.created_at,ik1_0.endpoint,ik1_0.expires_at,ik1_0.idempotency_key,ik1_0.request_hash,ik1_0.response_body,ik1_0.response_status,ik1_0.user_id from idempotency_keys ik1_0 where ik1_0.idempotency_key=? and ik1_0.user_id=? and ik1_0.endpoint=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: insert into tasks (created_at,deleted,description,due_date,intent_bucket_id,last_modified_at,user_id,priority,rationale,status,title,version,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into audit_logs (action,actor_role,actor_user_id,ip_address,metadata,target_id,target_type,timestamp,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into idempotency_keys (created_at,endpoint,expires_at,idempotency_key,request_hash,response_body,response_status,user_id,id) values (?,?,?,?,?,?,?,?,default)
+2026-02-01 22:58:37.474 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=b3fccc78-3888-45a6-ad67-a4d4368dacd2, userId=] - Outgoing response: method=POST, uri=/api/v1/tasks, status=201, duration=4ms
+Hibernate: select count(*) from tasks t1_0
+Hibernate: select t1_0.id,t1_0.created_at,t1_0.deleted,t1_0.description,t1_0.due_date,t1_0.intent_bucket_id,t1_0.last_modified_at,t1_0.user_id,t1_0.priority,t1_0.rationale,t1_0.status,t1_0.title,t1_0.version from tasks t1_0
+Hibernate: select ik1_0.id,ik1_0.created_at,ik1_0.endpoint,ik1_0.expires_at,ik1_0.idempotency_key,ik1_0.request_hash,ik1_0.response_body,ik1_0.response_status,ik1_0.user_id from idempotency_keys ik1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+2026-02-01 22:58:37.482 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=dfd0a438-1d3d-402c-832d-0f56a963a262, userId=] - Incoming request: method=POST, uri=/api/v1/tasks, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ik1_0.id,ik1_0.created_at,ik1_0.endpoint,ik1_0.expires_at,ik1_0.idempotency_key,ik1_0.request_hash,ik1_0.response_body,ik1_0.response_status,ik1_0.user_id from idempotency_keys ik1_0 where ik1_0.idempotency_key=? and ik1_0.user_id=? and ik1_0.endpoint=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: insert into tasks (created_at,deleted,description,due_date,intent_bucket_id,last_modified_at,user_id,priority,rationale,status,title,version,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into audit_logs (action,actor_role,actor_user_id,ip_address,metadata,target_id,target_type,timestamp,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into idempotency_keys (created_at,endpoint,expires_at,idempotency_key,request_hash,response_body,response_status,user_id,id) values (?,?,?,?,?,?,?,?,default)
+2026-02-01 22:58:37.487 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=dfd0a438-1d3d-402c-832d-0f56a963a262, userId=] - Outgoing response: method=POST, uri=/api/v1/tasks, status=201, duration=5ms
+Hibernate: select count(*) from tasks t1_0
+Hibernate: select count(*) from idempotency_keys ik1_0
+Hibernate: select t1_0.id,t1_0.created_at,t1_0.deleted,t1_0.description,t1_0.due_date,t1_0.intent_bucket_id,t1_0.last_modified_at,t1_0.user_id,t1_0.priority,t1_0.rationale,t1_0.status,t1_0.title,t1_0.version from tasks t1_0
+Hibernate: select ik1_0.id,ik1_0.created_at,ik1_0.endpoint,ik1_0.expires_at,ik1_0.idempotency_key,ik1_0.request_hash,ik1_0.response_body,ik1_0.response_status,ik1_0.user_id from idempotency_keys ik1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into users (created_at,email,password,username,id) values (?,?,?,?,default)
+2026-02-01 22:58:37.511 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=94bb9216-4504-4c2c-a466-3dc52f4d12bd, userId=] - Incoming request: method=POST, uri=/api/v1/tasks, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ik1_0.id,ik1_0.created_at,ik1_0.endpoint,ik1_0.expires_at,ik1_0.idempotency_key,ik1_0.request_hash,ik1_0.response_body,ik1_0.response_status,ik1_0.user_id from idempotency_keys ik1_0 where ik1_0.idempotency_key=? and ik1_0.user_id=? and ik1_0.endpoint=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: insert into tasks (created_at,deleted,description,due_date,intent_bucket_id,last_modified_at,user_id,priority,rationale,status,title,version,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into audit_logs (action,actor_role,actor_user_id,ip_address,metadata,target_id,target_type,timestamp,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into idempotency_keys (created_at,endpoint,expires_at,idempotency_key,request_hash,response_body,response_status,user_id,id) values (?,?,?,?,?,?,?,?,default)
+2026-02-01 22:58:37.515 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=94bb9216-4504-4c2c-a466-3dc52f4d12bd, userId=] - Outgoing response: method=POST, uri=/api/v1/tasks, status=201, duration=4ms
+2026-02-01 22:58:37.516 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=4537ed9a-520c-49a8-ab46-e163da9a1cee, userId=] - Incoming request: method=POST, uri=/api/v1/tasks, clientIp=127.0.0.1
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.password,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select ik1_0.id,ik1_0.created_at,ik1_0.endpoint,ik1_0.expires_at,ik1_0.idempotency_key,ik1_0.request_hash,ik1_0.response_body,ik1_0.response_status,ik1_0.user_id from idempotency_keys ik1_0 where ik1_0.idempotency_key=? and ik1_0.user_id=? and ik1_0.endpoint=?
+2026-02-01 22:58:37.522 INFO  [main] c.t.t.security.RequestLoggingFilter - [correlationId=4537ed9a-520c-49a8-ab46-e163da9a1cee, userId=] - Outgoing response: method=POST, uri=/api/v1/tasks, status=201, duration=6ms
+Hibernate: select count(*) from tasks t1_0
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.115 s -- in com.taskify.taskify.task.TaskIdempotencyIntegrationTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  5.693 s
+[INFO] Finished at: 2026-02-01T22:58:37+05:30
+[INFO] ------------------------------------------------------------------------

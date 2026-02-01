@@ -30,6 +30,7 @@ public interface TaskService {
             LocalDateTime toDate,
             LocalDateTime dueFrom,
             LocalDateTime dueTo,
+            Long intentId,
             String keyword,
             boolean includeDeleted,
             Pageable pageable);

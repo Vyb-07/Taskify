@@ -105,6 +105,7 @@ public class TaskController {
             @RequestParam(required = false) LocalDateTime toDate,
             @RequestParam(required = false) LocalDateTime dueFrom,
             @RequestParam(required = false) LocalDateTime dueTo,
+            @RequestParam(required = false) Long intent,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "false") boolean includeDeleted,
             @RequestParam(defaultValue = "0") int page,
@@ -115,8 +116,8 @@ public class TaskController {
         Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        Page<TaskResponse> tasks = taskService.getAllTasks(status, priority, fromDate, toDate, dueFrom, dueTo, keyword,
-                includeDeleted, pageable);
+        Page<TaskResponse> tasks = taskService.getAllTasks(status, priority, fromDate, toDate, dueFrom, dueTo, intent,
+                keyword, includeDeleted, pageable);
         return ResponseEntity.ok(tasks);
     }
 

@@ -18,6 +18,10 @@ public class TaskSpecification {
         return (root, query, cb) -> priority == null ? null : cb.equal(root.get("priority"), priority);
     }
 
+    public static Specification<Task> withIntent(Long intentId) {
+        return (root, query, cb) -> intentId == null ? null : cb.equal(root.get("intentBucket").get("id"), intentId);
+    }
+
     public static Specification<Task> withKeyword(String keyword) {
         return (root, query, cb) -> {
             if (keyword == null || keyword.isBlank()) {

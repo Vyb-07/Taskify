@@ -10,6 +10,7 @@ import com.taskify.taskify.model.User;
 import com.taskify.taskify.repository.AuditLogRepository;
 import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.UserRepository;
+import com.taskify.taskify.repository.RefreshTokenRepository;
 import com.taskify.taskify.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,12 @@ public class TaskReviewIntegrationTest {
     private AuditLogRepository auditLogRepository;
 
     @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Autowired
+    private org.springframework.cache.CacheManager cacheManager;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private User testUser;
@@ -55,7 +62,11 @@ public class TaskReviewIntegrationTest {
     void setUp() {
         taskRepository.deleteAll();
         auditLogRepository.deleteAll();
+        refreshTokenRepository.deleteAll();
         userRepository.deleteAll();
+
+        // Clear caches
+        cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).clear());
 
         testUser = new User();
         testUser.setUsername("reviewer");

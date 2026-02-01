@@ -11,6 +11,8 @@ import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.UserRepository;
 import com.taskify.taskify.service.AuditService;
 import com.taskify.taskify.service.impl.TaskServiceImpl;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,6 +55,12 @@ public class TaskServiceTest {
     @Mock
     private org.springframework.cache.Cache cache;
 
+    @Mock
+    private MeterRegistry meterRegistry;
+
+    @Mock
+    private Counter counter;
+
     @InjectMocks
     private TaskServiceImpl taskService;
 
@@ -86,6 +94,9 @@ public class TaskServiceTest {
 
         // Mock cache for incrementTaskVersion
         lenient().when(cacheManager.getCache("taskVersions")).thenReturn(cache);
+
+        // Mock Micrometer
+        lenient().when(meterRegistry.counter(anyString(), any(String[].class))).thenReturn(counter);
     }
 
     @Test
