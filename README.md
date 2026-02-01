@@ -35,6 +35,9 @@ src/main/java/com/taskify/taskify
 ├── dto/
 │   ├── ApiError.java
 │   ├── AuthResponse.java
+│   ├── IntentBucketRequest.java
+│   ├── IntentBucketResponse.java
+│   ├── IntentOverviewResponse.java
 │   ├── LoginRequest.java
 │   ├── RegisterRequest.java
 │   ├── TaskRequest.java
@@ -59,6 +62,7 @@ src/main/java/com/taskify/taskify
 ├── repository/
 │   ├── AuditLogRepository.java
 │   ├── IdempotencyKeyRepository.java
+│   ├── IntentBucketRepository.java
 │   ├── RefreshTokenRepository.java
 │   ├── RoleRepository.java
 │   ├── TaskRepository.java
@@ -76,6 +80,7 @@ src/main/java/com/taskify/taskify
 │   ├── AuthService.java
 │   ├── IdempotencyService.java
 │   ├── IdempotencyCleanupTask.java
+│   ├── IntentBucketService.java
 │   ├── RateLimitService.java
 │   ├── RefreshTokenService.java
 │   ├── TaskService.java
@@ -83,6 +88,7 @@ src/main/java/com/taskify/taskify
 │       ├── AuditServiceImpl.java
 │       ├── AuthServiceImpl.java
 │       ├── IdempotencyServiceImpl.java
+│       ├── IntentBucketServiceImpl.java
 │       ├── RefreshTokenServiceImpl.java
 │       ├── TaskServiceImpl.java
 │       └── UserDetailsServiceImpl.java
@@ -120,6 +126,7 @@ src/main/java/com/taskify/taskify
 - **Focus Mode**: A decision-support endpoint that returns the top 5 most urgent and high-priority tasks for the user.
 - **Stagnant Tasks**: A UX-insight endpoint that identifies blocked or neglected work using time-based signals (overdue, inactive, stalled progress).
 - **Weekly Review**: A reflective UX feature that provides aggregated behavioral insights and activity summaries over the last 7 days.
+- **Intent Buckets**: A domain model for grouping tasks by purpose (e.g., Work, Health, Personal) with aggregated productivity insights and ownership isolation.
 
 ## Caching & Performance
 
@@ -147,6 +154,7 @@ src/main/java/com/taskify/taskify
     - **API Deprecation, Focus Mode, and Stagnant Tasks integration tests**.
     - **Daily Check-in intent capture and carryover tests**.
     - **Weekly Review behavioral aggregation tests**.
+    - **Intent Bucket domain isolation and aggregated overview tests**.
 
 ## API Endpoints
 
@@ -167,6 +175,12 @@ src/main/java/com/taskify/taskify
 - `POST /api/v1/tasks`: Create a new task. (Supports `Idempotency-Key` header)
 - `PUT /api/v1/tasks/{id}`: Update an existing task.
 - `DELETE /api/v1/tasks/{id}`: Soft-delete a task.
+
+### Intent Buckets
+- `GET /api/v1/intents`: List all intent buckets for the current user.
+- `POST /api/v1/intents`: Create a new intent bucket.
+- `DELETE /api/v1/intents/{id}`: Delete an intent bucket (safe deletion: tasks are detached, not deleted).
+- `GET /api/v1/intents/overview`: Get productivity insights across all intent buckets (cached).
 
 ### Admin
 - `POST /api/v1/admin/tasks/{id}/restore`: Restore a soft-deleted task.
