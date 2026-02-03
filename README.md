@@ -70,6 +70,8 @@ src/main/java/com/taskify/taskify
 │   └── UserRepository.java
 ├── security/
 │   ├── CorrelationIdFilter.java
+│   ├── CustomAccessDeniedHandler.java
+│   ├── CustomAuthenticationEntryPoint.java
 │   ├── JwtAuthenticationFilter.java
 │   ├── JwtService.java
 │   ├── RateLimitFilter.java
@@ -155,6 +157,7 @@ src/main/java/com/taskify/taskify
     - **Daily Check-in intent capture and carryover tests**.
     - **Weekly Review behavioral aggregation tests**.
     - **Intent Bucket domain isolation and aggregated overview tests**.
+    - **Standardized API Error Handling and security boundary tests**.
 
 ## API Endpoints
 
@@ -212,6 +215,30 @@ To ensure a stable experience for our clients while allowing the API to evolve, 
 4.  **Logging**: Usage of deprecated endpoints is monitored via WARN-level logs to identify active clients that need migration.
 
 Clients are encouraged to migrate to successor endpoints as soon as they see the `Deprecation` header.
+    
+## API Error Handling
+
+Taskify provides a robust and consistent error handling mechanism to ensure a predictable experience for API consumers and easy traceability for developers.
+
+### Standardized Error Contract
+Every API failure (4xx or 5xx) returns a structured JSON response with the following fields:
+
+```json
+{
+  "timestamp": "2026-02-03T18:40:03.775",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Task Not Found with id 999999",
+  "path": "/api/v1/tasks/999999",
+  "correlationId": "7aac0512-8c69-4951-9bd6-407e28299ee1"
+}
+```
+
+### Key Features
+- **Correlation IDs**: Every error response includes a `correlationId`, which can be found in the application logs and the `X-Correlation-ID` response header, allowing developers to trace a specific failure across the system.
+- **Security Boundary**: Custom security handlers ensure that even authentication and authorization failures (401/403) return JSON instead of default HTML error pages.
+- **Validation Aggregation**: Field-level validation errors (e.g., from `@Valid`) are aggregated into a single, human-readable message.
+- **OpenAPI Integration**: Common error scenarios (400, 401, 403, 404, 409, 429) are explicitly documented in the Swagger UI with their corresponding schemas.
 
 ## Running the Project
 

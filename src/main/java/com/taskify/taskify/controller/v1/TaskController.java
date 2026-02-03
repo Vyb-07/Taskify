@@ -12,8 +12,12 @@ import com.taskify.taskify.model.User;
 import com.taskify.taskify.repository.UserRepository;
 import com.taskify.taskify.service.IdempotencyService;
 import com.taskify.taskify.service.TaskService;
+import com.taskify.taskify.dto.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -34,6 +38,13 @@ import java.util.Optional;
 @RequestMapping("/api/v1/tasks")
 @Tag(name = "Tasks", description = "Version 1 APIs for managing tasks")
 @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+@ApiResponses({
+        @ApiResponse(responseCode = "401", description = "Unauthenticated - Invalid or expired token", content = @Content(schema = @Schema(implementation = ApiError.class))),
+        @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient permissions or ownership violation", content = @Content(schema = @Schema(implementation = ApiError.class))),
+        @ApiResponse(responseCode = "404", description = "Not Found - Resource does not exist or user doesn't own it", content = @Content(schema = @Schema(implementation = ApiError.class))),
+        @ApiResponse(responseCode = "409", description = "Conflict - Optimistic locking or idempotency failure", content = @Content(schema = @Schema(implementation = ApiError.class))),
+        @ApiResponse(responseCode = "429", description = "Too Many Requests - Rate limit exceeded", content = @Content(schema = @Schema(implementation = ApiError.class)))
+})
 public class TaskController {
 
     private final TaskService taskService;

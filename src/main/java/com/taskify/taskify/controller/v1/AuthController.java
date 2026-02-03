@@ -5,8 +5,12 @@ import com.taskify.taskify.dto.LoginRequest;
 import com.taskify.taskify.dto.RegisterRequest;
 import com.taskify.taskify.dto.TokenRefreshRequest;
 import com.taskify.taskify.service.AuthService;
+import com.taskify.taskify.dto.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +19,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Authentication", description = "Version 1 APIs for user registration and login")
+@ApiResponses({
+        @ApiResponse(responseCode = "400", description = "Bad Request - Invalid input or validation failure", content = @Content(schema = @Schema(implementation = ApiError.class))),
+        @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials or token", content = @Content(schema = @Schema(implementation = ApiError.class))),
+        @ApiResponse(responseCode = "409", description = "Conflict - User already exists or state conflict", content = @Content(schema = @Schema(implementation = ApiError.class))),
+        @ApiResponse(responseCode = "429", description = "Too Many Requests - Rate limit exceeded", content = @Content(schema = @Schema(implementation = ApiError.class)))
+})
 public class AuthController {
 
     private final AuthService authService;

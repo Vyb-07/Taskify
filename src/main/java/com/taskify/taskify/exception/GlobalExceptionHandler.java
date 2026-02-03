@@ -14,6 +14,7 @@ import com.taskify.taskify.model.AuditTargetType;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -28,28 +29,18 @@ public class GlobalExceptionHandler {
                 this.auditService = auditService;
         }
 
-        // 🧩 1️⃣ Handle Task Not Found (already existed)
-        @ExceptionHandler(TaskNotFoundException.class)
-        public ResponseEntity<ApiError> handleTaskNotFound(TaskNotFoundException ex, WebRequest request) {
-                ApiError error = new ApiError(
-                                LocalDateTime.now(),
-                                HttpStatus.NOT_FOUND.value(),
-                                "Not Found",
-                                ex.getMessage(),
-                                request.getDescription(false).replace("uri=", ""));
-                logger.warn("Task not found: {}", ex.getMessage());
+        // 🧩 1️⃣ Handle Not Found scenarios
+        @ExceptionHandler({ TaskNotFoundException.class, jakarta.persistence.EntityNotFoundException.class })
+        public ResponseEntity<ApiError> handleNotFound(Exception ex, WebRequest request) {
+                ApiError error = createApiError(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), request);
+                logger.warn("Resource not found: {}", ex.getMessage());
                 return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
         }
 
         @ExceptionHandler(IllegalArgumentException.class)
         public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException ex,
                         WebRequest request) {
-                ApiError error = new ApiError(
-                                LocalDateTime.now(),
-                                HttpStatus.BAD_REQUEST.value(),
-                                "Bad Request",
-                                ex.getMessage(),
-                                request.getDescription(false).replace("uri=", ""));
+                ApiError error = createApiError(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage(), request);
                 logger.warn("Invalid argument: {}", ex.getMessage());
                 return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
@@ -63,12 +54,8 @@ public class GlobalExceptionHandler {
                                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
                                 .collect(Collectors.joining("; "));
 
-                ApiError error = new ApiError(
-                                LocalDateTime.now(),
-                                HttpStatus.BAD_REQUEST.value(),
-                                "Validation Error",
-                                errorMessages,
-                                request.getDescription(false).replace("uri=", ""));
+                ApiError error = createApiError(HttpStatus.BAD_REQUEST, "Validation Error", errorMessages, request);
+                logger.warn("Validation failed: {}", errorMessages);
                 return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
 
@@ -82,42 +69,35 @@ public class GlobalExceptionHandler {
                                 .map(v -> v.getPropertyPath() + ": " + v.getMessage())
                                 .collect(Collectors.joining("; "));
 
-                ApiError error = new ApiError(
-                                LocalDateTime.now(),
-                                HttpStatus.BAD_REQUEST.value(),
-                                "Constraint Violation",
-                                errorMessages,
-                                request.getDescription(false).replace("uri=", ""));
+                ApiError error = createApiError(HttpStatus.BAD_REQUEST, "Constraint Violation", errorMessages, request);
+                logger.warn("Constraint violation: {}", errorMessages);
                 return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
 
-        // 🧩 4️⃣ Handle Authentication Failures
-        @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
-        public ResponseEntity<ApiError> handleBadCredentials(
-                        org.springframework.security.authentication.BadCredentialsException ex, WebRequest request) {
-                ApiError error = new ApiError(
-                                LocalDateTime.now(),
-                                HttpStatus.UNAUTHORIZED.value(),
-                                "Unauthorized",
-                                "Invalid username or password",
-                                request.getDescription(false).replace("uri=", ""));
+        // 🧩 4️⃣ Handle Authentication & Authorization Failures
+        @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+        public ResponseEntity<ApiError> handleAuthenticationException(
+                        org.springframework.security.core.AuthenticationException ex, WebRequest request) {
+                HttpStatus status = HttpStatus.UNAUTHORIZED;
+                String message = ex.getMessage();
 
-                String username = request.getParameter("username"); // Might be null depending on how it's sent
+                if (ex instanceof org.springframework.security.authentication.BadCredentialsException) {
+                        message = "Invalid username or password";
+                }
+
+                ApiError error = createApiError(status, "Unauthorized", message, request);
+
+                String username = request.getParameter("username");
                 auditService.logEvent(AuditAction.LOGIN_FAILURE, AuditTargetType.AUTH, null, username,
-                                java.util.Map.of("reason", "Bad credentials"));
+                                java.util.Map.of("reason", message));
 
-                logger.warn("Authentication failure for user {}: {}", username, ex.getMessage());
-                return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+                logger.warn("Authentication failure: {}", message);
+                return new ResponseEntity<>(error, status);
         }
 
         @ExceptionHandler(TokenException.class)
         public ResponseEntity<ApiError> handleTokenException(TokenException ex, WebRequest request) {
-                ApiError error = new ApiError(
-                                LocalDateTime.now(),
-                                HttpStatus.UNAUTHORIZED.value(),
-                                "Unauthorized",
-                                ex.getMessage(),
-                                request.getDescription(false).replace("uri=", ""));
+                ApiError error = createApiError(HttpStatus.UNAUTHORIZED, "Unauthorized", ex.getMessage(), request);
                 logger.warn("Token error: {}", ex.getMessage());
                 return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
         }
@@ -125,24 +105,15 @@ public class GlobalExceptionHandler {
         @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
         public ResponseEntity<ApiError> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex,
                         WebRequest request) {
-                ApiError error = new ApiError(
-                                LocalDateTime.now(),
-                                HttpStatus.FORBIDDEN.value(),
-                                "Forbidden",
-                                ex.getMessage(),
-                                request.getDescription(false).replace("uri=", ""));
+                ApiError error = createApiError(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage(), request);
                 logger.warn("Access denied: {}", ex.getMessage());
                 return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
         }
 
         @ExceptionHandler(RateLimitExceededException.class)
         public ResponseEntity<ApiError> handleRateLimitExceeded(RateLimitExceededException ex, WebRequest request) {
-                ApiError error = new ApiError(
-                                LocalDateTime.now(),
-                                HttpStatus.TOO_MANY_REQUESTS.value(),
-                                "Too Many Requests",
-                                ex.getMessage(),
-                                request.getDescription(false).replace("uri=", ""));
+                ApiError error = createApiError(HttpStatus.TOO_MANY_REQUESTS, "Too Many Requests", ex.getMessage(),
+                                request);
                 logger.warn("Rate limit exceeded: {}", ex.getMessage());
                 return new ResponseEntity<>(error, HttpStatus.TOO_MANY_REQUESTS);
         }
@@ -150,24 +121,16 @@ public class GlobalExceptionHandler {
         @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
         public ResponseEntity<ApiError> handleOptimisticLockFailure(
                         org.springframework.orm.ObjectOptimisticLockingFailureException ex, WebRequest request) {
-                ApiError error = new ApiError(
-                                LocalDateTime.now(),
-                                HttpStatus.CONFLICT.value(),
-                                "Conflict",
-                                "The resource you are trying to update has been modified by another user. Please reload and try again.",
-                                request.getDescription(false).replace("uri=", ""));
+                ApiError error = createApiError(HttpStatus.CONFLICT, "Conflict",
+                                "The resource has been modified by another user. Please reload and try again.",
+                                request);
                 logger.warn("Optimistic lock failure: {}", ex.getMessage());
                 return new ResponseEntity<>(error, HttpStatus.CONFLICT);
         }
 
         @ExceptionHandler(IdempotencyException.class)
         public ResponseEntity<ApiError> handleIdempotencyException(IdempotencyException ex, WebRequest request) {
-                ApiError error = new ApiError(
-                                LocalDateTime.now(),
-                                HttpStatus.CONFLICT.value(),
-                                "Idempotency Error",
-                                ex.getMessage(),
-                                request.getDescription(false).replace("uri=", ""));
+                ApiError error = createApiError(HttpStatus.CONFLICT, "Idempotency Error", ex.getMessage(), request);
                 logger.warn("Idempotency error: {}", ex.getMessage());
                 return new ResponseEntity<>(error, HttpStatus.CONFLICT);
         }
@@ -175,13 +138,20 @@ public class GlobalExceptionHandler {
         // 🧩 5️⃣ Catch any unexpected exception (fallback)
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ApiError> handleGenericException(Exception ex, WebRequest request) {
-                ApiError error = new ApiError(
-                                LocalDateTime.now(),
-                                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                                "Internal Server Error",
-                                "Something went wrong. Please try again later.",
-                                request.getDescription(false).replace("uri=", ""));
-                logger.error("Unexpected error occurred", ex); // Requirement: Log errors with stack traces
+                ApiError error = createApiError(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error",
+                                "Something went wrong. Please try again later.", request);
+                logger.error("Unexpected error occurred: {}", ex.getMessage(), ex);
                 return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        private ApiError createApiError(HttpStatus status, String error, String message, WebRequest request) {
+                String correlationId = MDC.get("correlationId");
+                return new ApiError(
+                                LocalDateTime.now(),
+                                status.value(),
+                                error,
+                                message,
+                                request.getDescription(false).replace("uri=", ""),
+                                correlationId);
         }
 }

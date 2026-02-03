@@ -4,7 +4,12 @@ import com.taskify.taskify.dto.IntentBucketRequest;
 import com.taskify.taskify.dto.IntentBucketResponse;
 import com.taskify.taskify.dto.IntentOverviewResponse;
 import com.taskify.taskify.service.IntentBucketService;
+import com.taskify.taskify.dto.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -17,6 +22,13 @@ import java.util.List;
 @RequestMapping("/api/v1/intents")
 @Tag(name = "Intent Bucket APIs", description = "Endpoints for managing purpose-driven task groupings (Intent Buckets)")
 @SecurityRequirement(name = "bearerAuth")
+@ApiResponses({
+        @ApiResponse(responseCode = "401", description = "Unauthenticated - Invalid or expired token", content = @Content(schema = @Schema(implementation = ApiError.class))),
+        @ApiResponse(responseCode = "403", description = "Forbidden - Insufficient permissions or ownership violation", content = @Content(schema = @Schema(implementation = ApiError.class))),
+        @ApiResponse(responseCode = "404", description = "Not Found - Resource does not exist or user doesn't own it", content = @Content(schema = @Schema(implementation = ApiError.class))),
+        @ApiResponse(responseCode = "409", description = "Conflict - Uniqueness violation or business state conflict", content = @Content(schema = @Schema(implementation = ApiError.class))),
+        @ApiResponse(responseCode = "429", description = "Too Many Requests - Rate limit exceeded", content = @Content(schema = @Schema(implementation = ApiError.class)))
+})
 public class IntentBucketController {
 
     private final IntentBucketService intentBucketService;
