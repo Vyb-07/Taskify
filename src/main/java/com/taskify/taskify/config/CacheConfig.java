@@ -30,6 +30,7 @@ public class CacheConfig {
         private int tasksVersionsTtl;
 
         @Bean
+        @SuppressWarnings("null")
         public CacheManager cacheManager() {
                 CaffeineCacheManager cacheManager = new CaffeineCacheManager(
                                 "tasks", "taskDetails", "taskVersions", "intentOverview");
