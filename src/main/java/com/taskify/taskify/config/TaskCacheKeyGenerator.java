@@ -21,6 +21,7 @@ public class TaskCacheKeyGenerator implements KeyGenerator {
     }
 
     @Override
+    @SuppressWarnings("null")
     public @org.springframework.lang.NonNull Object generate(@org.springframework.lang.NonNull Object target,
             @org.springframework.lang.NonNull Method method, @org.springframework.lang.NonNull Object... params) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
