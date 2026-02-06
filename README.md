@@ -125,8 +125,9 @@ src/main/java/com/taskify/taskify
 - **Idempotent Write Operations**: Support for `Idempotency-Key` header on task creation to prevent duplicate processing on retries.
 - **Daily Check-in**: A lightweight intent-capture feature that preserves continuity across days by carrying forward unfinished tasks.
 - **Task Rationale**: Preserve the "why" behind a task with an optional rationale field.
-- **Focus Mode**: A decision-support endpoint that returns the top 5 most urgent and high-priority tasks for the user.
-- **Stagnant Tasks**: A UX-insight endpoint that identifies blocked or neglected work using time-based signals (overdue, inactive, stalled progress).
+- **Focus Mode**: A decision-support endpoint that returns the top 5 most urgent and high-priority tasks, now featuring human-readable explanations (e.g., "Overdue by 3 days and high priority").
+- **Stagnant Tasks**: A UX-insight endpoint that identifies blocked or neglected work with transparency on why they were flagged (e.g., "Inactive for 10 days while still IN_PROGRESS").
+- **Task Explainability**: A trust-building enhancement across all insight endpoints that provides deterministic, neutral, and descriptive reasons for system decisions without changing business logic.
 - **Weekly Review**: A reflective UX feature that provides aggregated behavioral insights and activity summaries over the last 7 days.
 - **Intent Buckets**: A domain model for grouping tasks by purpose (e.g., Work, Health, Personal) with aggregated productivity insights and ownership isolation.
 
@@ -154,6 +155,7 @@ src/main/java/com/taskify/taskify
     - Advanced query and ownership enforcement tests.
     - **Idempotency and Retry Safety tests**.
     - **API Deprecation, Focus Mode, and Stagnant Tasks integration tests**.
+    - **Task Explainability unit and integration tests** (verifying deterministic reason generation).
     - **Daily Check-in intent capture and carryover tests**.
     - **Weekly Review behavioral aggregation tests**.
     - **Intent Bucket domain isolation and aggregated overview tests**.

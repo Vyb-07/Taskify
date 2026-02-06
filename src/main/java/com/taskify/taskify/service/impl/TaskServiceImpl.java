@@ -13,6 +13,7 @@ import com.taskify.taskify.repository.UserRepository;
 import com.taskify.taskify.security.SecurityConstants;
 import com.taskify.taskify.repository.IntentBucketRepository;
 import com.taskify.taskify.service.AuditService;
+import com.taskify.taskify.service.TaskExplanationService;
 import com.taskify.taskify.service.TaskService;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.data.domain.Page;
@@ -50,11 +51,13 @@ public class TaskServiceImpl implements TaskService {
     private final CacheManager cacheManager;
     private final MeterRegistry meterRegistry;
     private final IntentBucketRepository intentBucketRepository;
+    private final TaskExplanationService taskExplanationService;
 
     public TaskServiceImpl(TaskRepository taskRepository, UserRepository userRepository,
             AuditLogRepository auditLogRepository, AuditService auditService,
             CacheManager cacheManager, MeterRegistry meterRegistry,
-            IntentBucketRepository intentBucketRepository) {
+            IntentBucketRepository intentBucketRepository,
+            TaskExplanationService taskExplanationService) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.auditLogRepository = auditLogRepository;
@@ -62,6 +65,7 @@ public class TaskServiceImpl implements TaskService {
         this.cacheManager = cacheManager;
         this.meterRegistry = meterRegistry;
         this.intentBucketRepository = intentBucketRepository;
+        this.taskExplanationService = taskExplanationService;
     }
 
     @Override
@@ -201,8 +205,9 @@ public class TaskServiceImpl implements TaskService {
         meterRegistry.counter("taskify.tasks.focus_mode_usage").increment();
         auditService.logEvent(AuditAction.FOCUS_MODE_USAGE, AuditTargetType.TASK, null, null);
 
+        LocalDateTime now = LocalDateTime.now();
         return focusTasks.stream()
-                .map(this::mapToResponse)
+                .map(task -> mapToResponse(task, taskExplanationService.generateFocusExplanation(task, now)))
                 .collect(Collectors.toList());
     }
 
@@ -234,7 +239,7 @@ public class TaskServiceImpl implements TaskService {
         auditService.logEvent(AuditAction.STAGNANT_MODE_USAGE, AuditTargetType.TASK, null, null);
 
         return stagnantTasks.stream()
-                .map(this::mapToResponse)
+                .map(task -> mapToResponse(task, taskExplanationService.generateStagnantExplanation(task, now)))
                 .collect(Collectors.toList());
     }
 
@@ -390,6 +395,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private TaskResponse mapToResponse(Task task) {
+        return mapToResponse(task, null);
+    }
+
+    private TaskResponse mapToResponse(Task task, String explanation) {
         return new TaskResponse(
                 task.getId(),
                 task.getTitle(),
@@ -400,6 +409,7 @@ public class TaskServiceImpl implements TaskService {
                 task.getDueDate(),
                 task.getCreatedAt(),
                 task.getIntentBucket() != null ? task.getIntentBucket().getId() : null,
-                task.getIntentBucket() != null ? task.getIntentBucket().getName() : null);
+                task.getIntentBucket() != null ? task.getIntentBucket().getName() : null,
+                explanation);
     }
 }

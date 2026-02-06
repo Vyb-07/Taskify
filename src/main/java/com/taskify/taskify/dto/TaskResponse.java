@@ -1,5 +1,6 @@
 package com.taskify.taskify.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.taskify.taskify.model.Priority;
 import com.taskify.taskify.model.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,6 +43,10 @@ public class TaskResponse {
     @Schema(description = "Name of the intent bucket this task belongs to", example = "Career Growth")
     private String intentBucketName;
 
+    @Schema(description = "Human-readable explanation of why this task was surfaced (only in insight endpoints)", example = "Overdue by 3 days and high priority")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String explanation;
+
     public TaskResponse() {
     }
 
@@ -50,6 +55,16 @@ public class TaskResponse {
             LocalDateTime createdAt,
             Long intentBucketId,
             String intentBucketName) {
+        this(id, title, description, rationale, status, priority, dueDate, createdAt, intentBucketId, intentBucketName,
+                null);
+    }
+
+    public TaskResponse(long id, String title, String description, String rationale, Status status, Priority priority,
+            LocalDateTime dueDate,
+            LocalDateTime createdAt,
+            Long intentBucketId,
+            String intentBucketName,
+            String explanation) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -60,6 +75,7 @@ public class TaskResponse {
         this.createdAt = createdAt;
         this.intentBucketId = intentBucketId;
         this.intentBucketName = intentBucketName;
+        this.explanation = explanation;
     }
 
     // Getters only (we don't expect clients to set these)
@@ -101,5 +117,9 @@ public class TaskResponse {
 
     public String getIntentBucketName() {
         return intentBucketName;
+    }
+
+    public String getExplanation() {
+        return explanation;
     }
 }
