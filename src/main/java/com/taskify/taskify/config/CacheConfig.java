@@ -38,33 +38,33 @@ public class CacheConfig {
                                 .expireAfterWrite(tasksStatusTtl, TimeUnit.MINUTES)
                                 .maximumSize(tasksStatusMaxSize)
                                 .recordStats()
-                                .build());
+                                .<Object, Object>build());
 
                 cacheManager.registerCustomCache("taskDetails", Caffeine.newBuilder()
                                 .expireAfterWrite(tasksDetailsTtl, TimeUnit.MINUTES)
                                 .maximumSize(tasksDetailsMaxSize)
                                 .recordStats()
-                                .build());
+                                .<Object, Object>build());
 
                 cacheManager.registerCustomCache("taskVersions", Caffeine.newBuilder()
                                 .expireAfterWrite(tasksVersionsTtl, TimeUnit.MINUTES)
                                 .maximumSize(10000) // One per active user
-                                .build());
+                                .<Object, Object>build());
 
                 cacheManager.registerCustomCache("weeklyReview", Caffeine.newBuilder()
                                 .expireAfterWrite(1, TimeUnit.HOURS)
                                 .maximumSize(5000)
-                                .build());
+                                .<Object, Object>build());
 
                 cacheManager.registerCustomCache("dailyCheckIn", Caffeine.newBuilder()
                                 .expireAfterWrite(5, TimeUnit.MINUTES)
                                 .maximumSize(5000)
-                                .build());
+                                .<Object, Object>build());
 
                 cacheManager.registerCustomCache("intentOverview", Caffeine.newBuilder()
                                 .expireAfterWrite(5, TimeUnit.MINUTES)
                                 .maximumSize(5000)
-                                .build());
+                                .<Object, Object>build());
 
                 return cacheManager;
         }

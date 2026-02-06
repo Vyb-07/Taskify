@@ -21,7 +21,8 @@ public class TaskCacheKeyGenerator implements KeyGenerator {
     }
 
     @Override
-    public Object generate(Object target, Method method, Object... params) {
+    public @org.springframework.lang.NonNull Object generate(@org.springframework.lang.NonNull Object target,
+            @org.springframework.lang.NonNull Method method, @org.springframework.lang.NonNull Object... params) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = (authentication != null) ? authentication.getName() : "anonymous";
 
@@ -33,8 +34,10 @@ public class TaskCacheKeyGenerator implements KeyGenerator {
         String version = "0";
         Cache versionCache = cacheManager.getCache("taskVersions");
         if (versionCache != null && authentication != null) {
-            version = versionCache.get(username, String.class);
-            if (version == null) {
+            String cachedVersion = versionCache.get(username, String.class);
+            if (cachedVersion != null) {
+                version = cachedVersion;
+            } else {
                 version = "0";
                 versionCache.put(username, version);
             }
@@ -54,6 +57,7 @@ public class TaskCacheKeyGenerator implements KeyGenerator {
             }
         }
 
-        return key.toString();
+        String result = key.toString();
+        return result;
     }
 }

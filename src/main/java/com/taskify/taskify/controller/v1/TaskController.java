@@ -124,6 +124,10 @@ public class TaskController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String direction) {
 
+        if (direction == null)
+            direction = "desc";
+        if (sortBy == null)
+            sortBy = "createdAt";
         Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
 

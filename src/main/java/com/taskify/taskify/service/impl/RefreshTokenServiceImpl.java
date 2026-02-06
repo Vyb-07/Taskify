@@ -36,11 +36,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
-        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+        long duration = refreshTokenDurationMs != null ? refreshTokenDurationMs : 3600000L;
+        refreshToken.setExpiryDate(Instant.now().plusMillis(duration));
         refreshToken.setToken(UUID.randomUUID().toString());
         refreshToken.setRevoked(false);
 
-        return refreshTokenRepository.save(refreshToken);
+        RefreshToken saved = refreshTokenRepository.save(refreshToken);
+        return saved;
     }
 
     @Override

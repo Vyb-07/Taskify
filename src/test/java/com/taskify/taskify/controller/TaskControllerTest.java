@@ -106,7 +106,7 @@ public class TaskControllerTest {
         @Test
         void shouldReturn401WhenJwtIsMissing() throws Exception {
                 mockMvc.perform(get("/api/v1/tasks"))
-                                .andExpect(status().isForbidden()); // Spring Security default for unauthorized
+                                .andExpect(status().isUnauthorized());
         }
 
         @Test

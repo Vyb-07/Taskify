@@ -36,7 +36,7 @@ public class ActuatorIntegrationTest {
     @Test
     public void metricsEndpointIsSecuredForCommonUser() throws Exception {
         mockMvc.perform(get("/actuator/metrics"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

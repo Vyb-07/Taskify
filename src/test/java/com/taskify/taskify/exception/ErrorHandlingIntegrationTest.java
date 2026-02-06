@@ -4,18 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taskify.taskify.dto.TaskRequest;
 import com.taskify.taskify.model.Priority;
 import com.taskify.taskify.model.Status;
+import com.taskify.taskify.repository.RefreshTokenRepository;
 import com.taskify.taskify.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.*;
@@ -25,7 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Transactional
 class ErrorHandlingIntegrationTest {
 
     @Autowired
@@ -35,10 +33,26 @@ class ErrorHandlingIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
+    private com.taskify.taskify.repository.TaskRepository taskRepository;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Autowired
+    private com.taskify.taskify.repository.AuditLogRepository auditLogRepository;
+
+    @Autowired
+    private com.taskify.taskify.repository.IdempotencyKeyRepository idempotencyKeyRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
+        idempotencyKeyRepository.deleteAll();
+        auditLogRepository.deleteAll();
+        taskRepository.deleteAll();
+        refreshTokenRepository.deleteAll();
         userRepository.deleteAll();
         // Create the user that WithMockUser expects
         userRepository.save(new com.taskify.taskify.model.User("testuser", "test@example.com", "password"));

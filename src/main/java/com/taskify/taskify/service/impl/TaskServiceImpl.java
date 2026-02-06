@@ -90,7 +90,8 @@ public class TaskServiceImpl implements TaskService {
 
         Task savedTask = taskRepository.save(task);
 
-        auditService.logEvent(AuditAction.TASK_CREATE, AuditTargetType.TASK, String.valueOf(savedTask.getId()), null);
+        Long taskId = savedTask.getId();
+        auditService.logEvent(AuditAction.TASK_CREATE, AuditTargetType.TASK, String.valueOf(taskId), null);
 
         meterRegistry.counter("taskify.tasks.created").increment();
 
@@ -141,7 +142,8 @@ public class TaskServiceImpl implements TaskService {
             Task updatedTask = taskRepository.save(existingTask);
 
             User currentUser = getCurrentUser();
-            boolean isAdminAction = isAdmin(currentUser) && existingTask.getOwner().getId() != currentUser.getId();
+            boolean isAdminAction = isAdmin(currentUser)
+                    && existingTask.getOwner().getId().longValue() != currentUser.getId().longValue();
             auditService.logEvent(AuditAction.TASK_UPDATE, AuditTargetType.TASK, String.valueOf(updatedTask.getId()),
                     isAdminAction ? java.util.Map.of("adminAction", true) : null);
 
@@ -169,7 +171,8 @@ public class TaskServiceImpl implements TaskService {
         validateOwnership(task);
 
         User currentUser = getCurrentUser();
-        boolean isAdminAction = isAdmin(currentUser) && task.getOwner().getId() != currentUser.getId();
+        boolean isAdminAction = isAdmin(currentUser)
+                && task.getOwner().getId().longValue() != currentUser.getId().longValue();
 
         task.setDeleted(true);
         taskRepository.save(task);
@@ -335,13 +338,15 @@ public class TaskServiceImpl implements TaskService {
             Pageable pageable) {
 
         User currentUser = getCurrentUser();
+        if (currentUser == null) {
+            throw new AccessDeniedException("Authenticated user not found in database");
+        }
         boolean isAdmin = isAdmin(currentUser);
 
-        Specification<Task> spec = Specification.where(null);
-
         // 1. Ownership Visibility
+        Specification<Task> spec = Specification.where((root, query, cb) -> cb.conjunction());
         if (!isAdmin) {
-            spec = spec.and(TaskSpecification.withOwner(currentUser));
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("owner"), currentUser));
         }
 
         // 2. Soft Delete Visibility
@@ -349,9 +354,8 @@ public class TaskServiceImpl implements TaskService {
             if (!isAdmin) {
                 throw new AccessDeniedException("Only admins can fetch deleted tasks");
             }
-            spec = spec.and(TaskSpecification.isDeleted());
         } else {
-            spec = spec.and(TaskSpecification.isNotDeleted());
+            spec = spec.and((root, query, cb) -> cb.isFalse(root.get("deleted")));
         }
 
         // 3. Optional Filters
@@ -362,19 +366,27 @@ public class TaskServiceImpl implements TaskService {
                 .and(TaskSpecification.withDueBetween(dueFrom, dueTo))
                 .and(TaskSpecification.withIntent(intentId));
 
+        if (pageable == null) {
+            throw new IllegalArgumentException("Pageable cannot be null");
+        }
         Page<Task> tasks = taskRepository.findAll(spec, pageable);
         return tasks.map(this::mapToResponse);
     }
 
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
         String username = authentication.getName();
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Authenticated user not found"));
+        return userRepository.findByUsername(username).orElse(null);
     }
 
     private void validateOwnership(Task task) {
         User currentUser = getCurrentUser();
+        if (task.getOwner() == null) {
+            throw new IllegalStateException("Task owner cannot be null");
+        }
         if (!isAdmin(currentUser) && task.getOwner().getId() != currentUser.getId()) {
             throw new AccessDeniedException("You do not have permission to access this task");
         }

@@ -9,7 +9,6 @@ import com.taskify.taskify.model.Task;
 import com.taskify.taskify.model.User;
 import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.UserRepository;
-import com.taskify.taskify.service.AuditService;
 import com.taskify.taskify.service.impl.TaskServiceImpl;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;

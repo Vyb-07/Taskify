@@ -16,7 +16,9 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(RequestLoggingFilter.class);
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@org.springframework.lang.NonNull HttpServletRequest request,
+            @org.springframework.lang.NonNull HttpServletResponse response,
+            @org.springframework.lang.NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
         long startTime = System.currentTimeMillis();

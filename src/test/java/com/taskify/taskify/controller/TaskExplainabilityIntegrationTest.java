@@ -60,7 +60,7 @@ public class TaskExplainabilityIntegrationTest {
         testUser.setPassword(passwordEncoder.encode("password"));
         testUser.setEmail("test@example.com");
         testUser.setRoles(Collections.emptySet());
-        testUser = userRepository.save(testUser);
+        testUser = java.util.Objects.requireNonNull(userRepository.save(testUser));
     }
 
     @Test
@@ -70,7 +70,8 @@ public class TaskExplainabilityIntegrationTest {
 
         mockMvc.perform(get("/api/v1/tasks/focus"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].explanation", is("Overdue by 1 days and high priority")));
+                .andExpect(jsonPath("$[0].explanation",
+                        java.util.Objects.requireNonNull(is("Overdue by 1 days and high priority"))));
     }
 
     @Test
@@ -84,7 +85,8 @@ public class TaskExplainabilityIntegrationTest {
 
         mockMvc.perform(get("/api/v1/tasks/stagnant"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].explanation", containsString("Pending for 10 days")));
+                .andExpect(jsonPath("$[0].explanation",
+                        java.util.Objects.requireNonNull(containsString("Pending for 10 days"))));
     }
 
     @Test

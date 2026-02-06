@@ -129,6 +129,6 @@ public class RateLimitIntegrationTest {
 
         // Verify that ANOTHER user (or unauthenticated) still has their own limit
         mockMvc.perform(get("/api/v1/tasks")) // Unauthenticated IP
-                .andExpect(status().isForbidden()); // Passed rate limit, blocked by security
+                .andExpect(status().isUnauthorized()); // Passed rate limit, blocked by security
     }
 }

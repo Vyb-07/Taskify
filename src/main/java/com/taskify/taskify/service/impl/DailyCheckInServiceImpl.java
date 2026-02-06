@@ -60,7 +60,11 @@ public class DailyCheckInServiceImpl implements DailyCheckInService {
         LocalDate today = LocalDate.now();
 
         // Validate task IDs existence and ownership
-        List<Task> tasks = taskRepository.findAllById(request.getTaskIds());
+        List<Long> taskIds = request.getTaskIds();
+        if (taskIds == null) {
+            throw new IllegalArgumentException("Task IDs cannot be null");
+        }
+        List<Task> tasks = taskRepository.findAllById(taskIds);
         if (tasks.size() != request.getTaskIds().size()) {
             throw new IllegalArgumentException("One or more invalid task IDs provided");
         }
@@ -133,6 +137,8 @@ public class DailyCheckInServiceImpl implements DailyCheckInService {
     }
 
     private List<TaskResponse> mapToResponses(List<Long> taskIds) {
+        if (taskIds == null)
+            return Collections.emptyList();
         return taskRepository.findAllById(taskIds).stream()
                 .filter(task -> !task.isDeleted()) // Extra safety
                 .map(this::mapToResponse)
@@ -140,6 +146,8 @@ public class DailyCheckInServiceImpl implements DailyCheckInService {
     }
 
     private List<TaskResponse> filterCarryover(List<Long> taskIds, Long userId) {
+        if (taskIds == null)
+            return Collections.emptyList();
         return taskRepository.findAllById(taskIds).stream()
                 .filter(task -> task.getOwner().getId().equals(userId))
                 .filter(task -> !task.isDeleted())

@@ -11,7 +11,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final HandlerInterceptor deprecationInterceptor;
 
-    public WebConfig(DeprecationInterceptor deprecationInterceptor) {
+    public WebConfig(@NonNull DeprecationInterceptor deprecationInterceptor) {
         this.deprecationInterceptor = deprecationInterceptor;
     }
 
