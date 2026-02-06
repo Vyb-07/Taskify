@@ -16,6 +16,7 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Override
+    @SuppressWarnings("null")
     public void addInterceptors(@NonNull InterceptorRegistry registry) {
         registry.addInterceptor(deprecationInterceptor);
     }
