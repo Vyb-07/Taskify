@@ -58,6 +58,7 @@ public class TaskControllerTest {
         private String jwtToken;
 
         @BeforeEach
+        @SuppressWarnings("null")
         void setUp() throws Exception {
                 rateLimitService.clearBuckets();
                 refreshTokenRepository.deleteAll();
@@ -88,6 +89,7 @@ public class TaskControllerTest {
         }
 
         @Test
+        @SuppressWarnings("null")
         void shouldCreateTaskSuccessfully() throws Exception {
                 TaskRequest request = new TaskRequest();
                 request.setTitle("Integration Test Task");
@@ -110,6 +112,7 @@ public class TaskControllerTest {
         }
 
         @Test
+        @SuppressWarnings("null")
         void shouldGetAllTasks() throws Exception {
                 mockMvc.perform(get("/api/v1/tasks")
                                 .header("Authorization", jwtToken))
@@ -117,6 +120,7 @@ public class TaskControllerTest {
         }
 
         @Test
+        @SuppressWarnings("null")
         void shouldGetTaskById() throws Exception {
                 // First create a task
                 TaskRequest request = new TaskRequest();

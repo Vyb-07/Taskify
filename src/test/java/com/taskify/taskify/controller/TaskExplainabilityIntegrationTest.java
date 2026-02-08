@@ -50,6 +50,7 @@ public class TaskExplainabilityIntegrationTest {
     private User testUser;
 
     @BeforeEach
+    @SuppressWarnings("null")
     void setUp() {
         taskRepository.deleteAll();
         refreshTokenRepository.deleteAll();

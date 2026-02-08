@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -43,11 +42,10 @@ public class TaskRationaleIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private User testUser;
-
     @BeforeEach
+    @SuppressWarnings("null")
     void setUp() {
-        testUser = userRepository.findByUsername("rationaleUser").orElseGet(() -> {
+        userRepository.findByUsername("rationaleUser").orElseGet(() -> {
             User user = new User();
             user.setUsername("rationaleUser");
             user.setEmail("rationale@example.com");
@@ -59,6 +57,7 @@ public class TaskRationaleIntegrationTest {
 
     @Test
     @WithMockUser(username = "rationaleUser")
+    @SuppressWarnings("null")
     void shouldCreateTaskWithRationale() throws Exception {
         TaskRequest request = new TaskRequest();
         request.setTitle("Task with rationale");
@@ -77,6 +76,7 @@ public class TaskRationaleIntegrationTest {
 
     @Test
     @WithMockUser(username = "rationaleUser")
+    @SuppressWarnings("null")
     void shouldUpdateTaskRationale() throws Exception {
         // First create a task
         TaskRequest createRequest = new TaskRequest();
@@ -108,6 +108,7 @@ public class TaskRationaleIntegrationTest {
 
     @Test
     @WithMockUser(username = "rationaleUser")
+    @SuppressWarnings("null")
     void shouldHandleNullRationale() throws Exception {
         TaskRequest request = new TaskRequest();
         request.setTitle("Task without rationale");

@@ -70,13 +70,14 @@ public class StagnantTasksIntegrationTest {
 
     @Test
     @WithMockUser(username = "stagnantUser", roles = "USER")
+    @SuppressWarnings("null")
     public void stagnantTasksDetectsOverdueInactiveWork() throws Exception {
         // 1. Overdue (>2d) and Inactive
         Task t1 = createTask("Overdue Stagnant", Status.PENDING, Priority.MEDIUM, LocalDateTime.now().minusDays(5));
         forceLastModified(t1.getId(), LocalDateTime.now().minusDays(3));
 
         // 2. Overdue but recently updated (Excluded)
-        Task t2 = createTask("Overdue Active", Status.PENDING, Priority.MEDIUM, LocalDateTime.now().minusDays(5));
+        createTask("Overdue Active", Status.PENDING, Priority.MEDIUM, LocalDateTime.now().minusDays(5));
         // lastModifiedAt is now() by default
 
         // 3. In Progress Stalled (>3d)
@@ -102,6 +103,7 @@ public class StagnantTasksIntegrationTest {
 
     @Test
     @WithMockUser(username = "otherUser", roles = "USER")
+    @SuppressWarnings("null")
     public void stagnantTasksRespectsOwnership() throws Exception {
         userRepository.save(new User("otherUser", "other@example.com", "password"));
 

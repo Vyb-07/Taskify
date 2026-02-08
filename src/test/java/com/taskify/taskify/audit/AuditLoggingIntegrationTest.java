@@ -20,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
 
@@ -62,6 +61,7 @@ public class AuditLoggingIntegrationTest {
     private org.springframework.cache.CacheManager cacheManager;
 
     @BeforeEach
+    @SuppressWarnings("null")
     void setUp() {
         rateLimitService.clearBuckets();
         taskRepository.deleteAll();
@@ -70,12 +70,18 @@ public class AuditLoggingIntegrationTest {
         userRepository.deleteAll();
 
         // Clear caches
-        cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).clear());
+        cacheManager.getCacheNames().forEach(name -> {
+            org.springframework.cache.Cache cache = cacheManager.getCache(name);
+            if (cache != null) {
+                cache.clear();
+            }
+        });
         roleRepository.findByName("ROLE_USER")
                 .orElseGet(() -> roleRepository.save(new Role("ROLE_USER")));
     }
 
     @Test
+    @SuppressWarnings("null")
     void shouldCreateAuditLogAndCorrelationIdOnRegistration() throws Exception {
         RegisterRequest request = new RegisterRequest("audituser", "audit@example.com", "password");
 
@@ -96,6 +102,7 @@ public class AuditLoggingIntegrationTest {
     }
 
     @Test
+    @SuppressWarnings("null")
     void shouldLogAuditOnLoginFailure() throws Exception {
         LoginRequest request = new LoginRequest("nonexistent", "wrong");
 

@@ -24,7 +24,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -67,6 +66,7 @@ public class TaskIdempotencyIntegrationTest {
         private User user;
 
         @BeforeEach
+        @SuppressWarnings("null")
         void setUp() {
                 taskRepository.deleteAll();
                 idempotencyKeyRepository.deleteAll();
@@ -74,18 +74,24 @@ public class TaskIdempotencyIntegrationTest {
                 userRepository.deleteAll();
 
                 // Clear caches
-                cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).clear());
+                cacheManager.getCacheNames().forEach(name -> {
+                        org.springframework.cache.Cache cache = cacheManager.getCache(name);
+                        if (cache != null) {
+                                cache.clear();
+                        }
+                });
 
                 Role userRole = roleRepository.findByName(SecurityConstants.ROLE_USER)
                                 .orElseGet(() -> roleRepository.save(new Role(SecurityConstants.ROLE_USER)));
 
                 user = new User("testuser", "test@example.com", "password");
                 user.setRoles(Set.of(userRole));
-                user = userRepository.save(user);
+                user = java.util.Objects.requireNonNull(userRepository.save(user));
         }
 
         @Test
         @WithMockUser(username = "testuser", roles = "USER")
+        @SuppressWarnings("null")
         void shouldCreateTaskAndStoreResponseOnFirstRequest() throws Exception {
                 TaskRequest request = new TaskRequest();
                 request.setTitle("Idempotent Task");
@@ -108,6 +114,7 @@ public class TaskIdempotencyIntegrationTest {
 
         @Test
         @WithMockUser(username = "testuser", roles = "USER")
+        @SuppressWarnings("null")
         void shouldReturnStoredResponseOnDuplicateRequest() throws Exception {
                 TaskRequest request = new TaskRequest();
                 request.setTitle("Idempotent Task");
@@ -143,6 +150,7 @@ public class TaskIdempotencyIntegrationTest {
 
         @Test
         @WithMockUser(username = "testuser", roles = "USER")
+        @SuppressWarnings("null")
         void shouldRejectMismatchedPayloadWithSameKey() throws Exception {
                 TaskRequest request1 = new TaskRequest();
                 request1.setTitle("Task 1");
@@ -179,6 +187,7 @@ public class TaskIdempotencyIntegrationTest {
 
         @Test
         @WithMockUser(username = "testuser", roles = "USER")
+        @SuppressWarnings("null")
         void shouldCreateSeparateTasksWithDifferentKeys() throws Exception {
                 TaskRequest request = new TaskRequest();
                 request.setTitle("Shared Payload");
@@ -203,6 +212,7 @@ public class TaskIdempotencyIntegrationTest {
 
         @Test
         @WithMockUser(username = "testuser", roles = "USER")
+        @SuppressWarnings("null")
         void shouldCreateTaskNormallyWhenKeyIsMissing() throws Exception {
                 TaskRequest request = new TaskRequest();
                 request.setTitle("No Key");

@@ -59,6 +59,7 @@ class ErrorHandlingIntegrationTest {
     }
 
     @Test
+    @SuppressWarnings("null")
     void shouldReturn401JsonForUnauthenticatedAccess() throws Exception {
         mockMvc.perform(get("/api/v1/tasks"))
                 .andExpect(status().isUnauthorized())
@@ -70,6 +71,7 @@ class ErrorHandlingIntegrationTest {
 
     @Test
     @WithMockUser(username = "testuser", roles = "USER")
+    @SuppressWarnings("null")
     void shouldReturn400ForValidationFailure() throws Exception {
         TaskRequest invalidRequest = new TaskRequest();
         invalidRequest.setTitle(""); // Invalid - @NotBlank
@@ -96,6 +98,7 @@ class ErrorHandlingIntegrationTest {
 
     @Test
     @WithMockUser(username = "testuser", roles = "USER")
+    @SuppressWarnings("null")
     void shouldReturn403ForForbiddenAccess() throws Exception {
         mockMvc.perform(get("/actuator/metrics"))
                 .andExpect(status().isForbidden())
@@ -107,6 +110,7 @@ class ErrorHandlingIntegrationTest {
 
     @Test
     @WithMockUser(username = "testuser", roles = "USER")
+    @SuppressWarnings("null")
     void shouldIncludeCorrelationIdInErrorResponse() throws Exception {
         String correlationId = UUID.randomUUID().toString();
 
@@ -118,6 +122,7 @@ class ErrorHandlingIntegrationTest {
 
     @Test
     @WithMockUser(username = "testuser", roles = "USER")
+    @SuppressWarnings("null")
     void shouldReturn409ForIdempotencyConflict() throws Exception {
         String key = "test-key-conflict";
         TaskRequest req1 = new TaskRequest();

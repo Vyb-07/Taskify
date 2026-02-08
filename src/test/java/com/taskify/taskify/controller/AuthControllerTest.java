@@ -61,6 +61,7 @@ public class AuthControllerTest {
     }
 
     @Test
+    @SuppressWarnings("null")
     void shouldRegisterUserSuccessfully() throws Exception {
         RegisterRequest request = new RegisterRequest("testuser", "test@example.com", "password");
 
@@ -71,6 +72,7 @@ public class AuthControllerTest {
     }
 
     @Test
+    @SuppressWarnings("null")
     void shouldLoginSuccessfully() throws Exception {
         // First register
         RegisterRequest registerRequest = new RegisterRequest("testuser", "test@example.com", "password");
@@ -90,6 +92,7 @@ public class AuthControllerTest {
     }
 
     @Test
+    @SuppressWarnings("null")
     void shouldReturn401ForInvalidLogin() throws Exception {
         LoginRequest loginRequest = new LoginRequest("invalid", "wrong");
 

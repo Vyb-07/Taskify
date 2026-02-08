@@ -1,6 +1,5 @@
 package com.taskify.taskify.controller;
 
-import com.taskify.taskify.dto.TaskReviewResponse;
 import com.taskify.taskify.model.AuditAction;
 import com.taskify.taskify.model.AuditLog;
 import com.taskify.taskify.model.Priority;
@@ -11,13 +10,11 @@ import com.taskify.taskify.repository.AuditLogRepository;
 import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.UserRepository;
 import com.taskify.taskify.repository.RefreshTokenRepository;
-import com.taskify.taskify.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -59,6 +56,7 @@ public class TaskReviewIntegrationTest {
     private User testUser;
 
     @BeforeEach
+    @SuppressWarnings("null")
     void setUp() {
         taskRepository.deleteAll();
         auditLogRepository.deleteAll();
@@ -66,18 +64,24 @@ public class TaskReviewIntegrationTest {
         userRepository.deleteAll();
 
         // Clear caches
-        cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).clear());
+        cacheManager.getCacheNames().forEach(name -> {
+            org.springframework.cache.Cache cache = cacheManager.getCache(name);
+            if (cache != null) {
+                cache.clear();
+            }
+        });
 
         testUser = new User();
         testUser.setUsername("reviewer");
         testUser.setPassword(passwordEncoder.encode("password"));
         testUser.setEmail("reviewer@example.com");
         testUser.setRoles(Collections.emptySet());
-        testUser = userRepository.save(testUser);
+        testUser = java.util.Objects.requireNonNull(userRepository.save(testUser));
     }
 
     @Test
     @WithMockUser(username = "reviewer")
+    @SuppressWarnings("null")
     void shouldGenerateEmptyReviewWhenNoDataExists() throws Exception {
         mockMvc.perform(get("/api/v1/tasks/review"))
                 .andExpect(status().isOk())
@@ -110,6 +114,7 @@ public class TaskReviewIntegrationTest {
 
     @Test
     @WithMockUser(username = "reviewer")
+    @SuppressWarnings("null")
     void shouldGenerateVelocityInsightWhenCompletingMoreTasks() throws Exception {
         // Create 1 task
         createTask("New Task", LocalDateTime.now().minusDays(2));

@@ -1,7 +1,6 @@
 package com.taskify.taskify.cache;
 
 import com.taskify.taskify.dto.TaskRequest;
-import com.taskify.taskify.dto.TaskResponse;
 import com.taskify.taskify.model.*;
 import com.taskify.taskify.repository.RefreshTokenRepository;
 import com.taskify.taskify.repository.RoleRepository;
@@ -50,13 +49,19 @@ public class TaskCacheIntegrationTest {
     private User user2;
 
     @BeforeEach
+    @SuppressWarnings("null")
     void setUp() {
         taskRepository.deleteAll();
         refreshTokenRepository.deleteAll();
         userRepository.deleteAll();
 
         // Clear caches
-        cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).clear());
+        cacheManager.getCacheNames().forEach(name -> {
+            Cache cache = cacheManager.getCache(name);
+            if (cache != null) {
+                cache.clear();
+            }
+        });
 
         Role userRole = roleRepository.findByName(SecurityConstants.ROLE_USER)
                 .orElseGet(() -> roleRepository.save(new Role(SecurityConstants.ROLE_USER)));
@@ -66,11 +71,11 @@ public class TaskCacheIntegrationTest {
 
         user1 = new User("user1", "user1@example.com", "password");
         user1.setRoles(Set.of(userRole));
-        user1 = userRepository.save(user1);
+        user1 = java.util.Objects.requireNonNull(userRepository.save(user1));
 
         user2 = new User("user2", "user2@example.com", "password");
         user2.setRoles(Set.of(userRole));
-        user2 = userRepository.save(user2);
+        user2 = java.util.Objects.requireNonNull(userRepository.save(user2));
 
         User adminUser = new User("adminuser", "admin@example.com", "password");
         adminUser.setRoles(Set.of(adminRole));
@@ -79,6 +84,7 @@ public class TaskCacheIntegrationTest {
 
     @Test
     @WithMockUser(username = "user1", roles = "USER")
+    @SuppressWarnings("null")
     void shouldCacheAndInvalidateTaskDetails() {
         Task task = new Task("Task 1", "Desc", Status.PENDING, Priority.MEDIUM, LocalDateTime.now().plusDays(1), user1);
         task = taskRepository.save(task);
@@ -87,7 +93,10 @@ public class TaskCacheIntegrationTest {
         // First call - should populate cache
         taskService.getTaskById(taskId);
         Cache detailCache = cacheManager.getCache("taskDetails");
-        assertNotNull(detailCache.get(taskId));
+        assertNotNull(detailCache);
+        if (detailCache != null) {
+            assertNotNull(detailCache.get(taskId));
+        }
 
         // Update task - should invalidate cache
         TaskRequest updateRequest = new TaskRequest();
@@ -95,11 +104,15 @@ public class TaskCacheIntegrationTest {
         updateRequest.setStatus(Status.IN_PROGRESS);
         taskService.updateTask(taskId, updateRequest);
 
-        assertNull(detailCache.get(taskId));
+        if (detailCache != null) {
+            assertNull(detailCache.get(taskId));
+        }
 
         // Second call - should re-populate
         taskService.getTaskById(taskId);
-        assertNotNull(detailCache.get(taskId));
+        if (detailCache != null) {
+            assertNotNull(detailCache.get(taskId));
+        }
     }
 
     @Test
@@ -108,18 +121,21 @@ public class TaskCacheIntegrationTest {
         taskService.getAllTasks(null, null, null, null, null, null, null, null, false, PageRequest.of(0, 10));
 
         Cache versionCache = cacheManager.getCache("taskVersions");
-        String versionBefore = versionCache.get("user1", String.class);
-        assertNotNull(versionBefore);
+        assertNotNull(versionCache);
+        if (versionCache != null) {
+            String versionBefore = versionCache.get("user1", String.class);
+            assertNotNull(versionBefore);
 
-        // Create a task - should increment version
-        TaskRequest createRequest = new TaskRequest();
-        createRequest.setTitle("New Task");
-        createRequest.setStatus(Status.PENDING);
-        createRequest.setPriority(Priority.MEDIUM);
-        taskService.createTask(createRequest);
+            // Create a task - should increment version
+            TaskRequest createRequest = new TaskRequest();
+            createRequest.setTitle("New Task");
+            createRequest.setStatus(Status.PENDING);
+            createRequest.setPriority(Priority.MEDIUM);
+            taskService.createTask(createRequest);
 
-        String versionAfter = versionCache.get("user1", String.class);
-        assertNotEquals(versionBefore, versionAfter);
+            String versionAfter = versionCache.get("user1", String.class);
+            assertNotEquals(versionBefore, versionAfter);
+        }
     }
 
     @Test
@@ -129,12 +145,15 @@ public class TaskCacheIntegrationTest {
         taskService.getAllTasks(null, null, null, null, null, null, null, null, false, PageRequest.of(0, 10));
 
         Cache versionCache = cacheManager.getCache("taskVersions");
-        String user1VersionBefore = versionCache.get("user1", String.class);
-        assertNotNull(user1VersionBefore);
+        assertNotNull(versionCache);
+        if (versionCache != null) {
+            String user1VersionBefore = versionCache.get("user1", String.class);
+            assertNotNull(user1VersionBefore);
 
-        // We can't use @WithMockUser twice in one method easily,
-        // but we can verify that user2 version is null initially
-        assertNull(versionCache.get("user2", String.class));
+            // We can't use @WithMockUser twice in one method easily,
+            // but we can verify that user2 version is null initially
+            assertNull(versionCache.get("user2", String.class));
+        }
     }
 
     @Test
@@ -143,6 +162,9 @@ public class TaskCacheIntegrationTest {
         // Just verify it populates for admin too
         taskService.getAllTasks(null, null, null, null, null, null, null, null, false, PageRequest.of(0, 10));
         Cache versionCache = cacheManager.getCache("taskVersions");
-        assertNotNull(versionCache.get("adminuser", String.class));
+        assertNotNull(versionCache);
+        if (versionCache != null) {
+            assertNotNull(versionCache.get("adminuser", String.class));
+        }
     }
 }

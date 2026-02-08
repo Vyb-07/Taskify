@@ -91,6 +91,7 @@ public class FocusModeIntegrationTest {
 
     @Test
     @WithMockUser(username = "focusUser", roles = "USER")
+    @SuppressWarnings("null")
     public void focusModeReturnsTop5UrgentAndPrioritizedTasks() throws Exception {
         mockMvc.perform(get("/api/v1/tasks/focus")
                 .accept(MediaType.APPLICATION_JSON))
@@ -105,6 +106,7 @@ public class FocusModeIntegrationTest {
 
     @Test
     @WithMockUser(username = "otherUser", roles = "USER")
+    @SuppressWarnings("null")
     public void focusModeRespectsOwnership() throws Exception {
         userRepository.save(new User("otherUser", "other@example.com", "password"));
 

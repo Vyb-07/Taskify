@@ -94,6 +94,7 @@ public class RateLimitIntegrationTest {
     }
 
     @Test
+    @SuppressWarnings("null")
     void shouldExceedRateLimitForAuthenticatedUser() throws Exception {
         // Register and login
         RegisterRequest registerRequest = new RegisterRequest("ratelimituser", "limit@example.com", "password");

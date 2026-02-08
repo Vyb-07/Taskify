@@ -13,7 +13,6 @@ import com.taskify.taskify.repository.RoleRepository;
 import com.taskify.taskify.repository.TaskRepository;
 import com.taskify.taskify.repository.UserRepository;
 import com.taskify.taskify.service.RateLimitService;
-import com.taskify.taskify.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,12 +56,10 @@ public class TaskConcurrencyIntegrationTest {
         @Autowired
         private RateLimitService rateLimitService;
 
-        @Autowired
-        private TaskService taskService;
-
         private String jwtToken;
 
         @BeforeEach
+        @SuppressWarnings("null")
         void setUp() throws Exception {
                 rateLimitService.clearBuckets();
                 taskRepository.deleteAll();
@@ -93,6 +90,7 @@ public class TaskConcurrencyIntegrationTest {
 
         @Test
         @WithMockUser(username = "concyuser", roles = "USER")
+        @SuppressWarnings("null")
         void shouldReturn409ConflictOnConcurrentUpdates() throws Exception {
                 // 1. Create a task
                 TaskRequest createRequest = new TaskRequest();

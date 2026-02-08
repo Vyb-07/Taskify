@@ -102,6 +102,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Cacheable(value = "taskDetails", key = "#id", unless = "#result == null")
+    @SuppressWarnings("null")
     public TaskResponse getTaskById(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
@@ -116,6 +117,7 @@ public class TaskServiceImpl implements TaskService {
     @Caching(evict = {
             @CacheEvict(value = "taskDetails", key = "#id")
     })
+    @SuppressWarnings("null")
     public TaskResponse updateTask(Long id, TaskRequest request) {
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
@@ -164,6 +166,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     @CacheEvict(value = "taskDetails", key = "#id")
+    @SuppressWarnings("null")
     public void deleteTask(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
@@ -344,7 +347,7 @@ public class TaskServiceImpl implements TaskService {
         boolean isAdmin = isAdmin(currentUser);
 
         // 1. Ownership Visibility
-        Specification<Task> spec = Specification.where((root, query, cb) -> cb.conjunction());
+        Specification<Task> spec = (root, query, cb) -> cb.conjunction();
         if (!isAdmin) {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("owner"), currentUser));
         }
@@ -397,6 +400,7 @@ public class TaskServiceImpl implements TaskService {
                 .anyMatch(role -> role.getName().equals(SecurityConstants.ROLE_ADMIN));
     }
 
+    @SuppressWarnings("null")
     private void incrementTaskVersion(String username) {
         Cache versionCache = cacheManager.getCache("taskVersions");
         if (versionCache != null) {

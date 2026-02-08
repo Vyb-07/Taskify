@@ -73,6 +73,7 @@ public class DailyCheckInIntegrationTest {
 
     @Test
     @WithMockUser(username = "checkinUser")
+    @SuppressWarnings("null")
     void shouldCreateDailyCheckIn() throws Exception {
         DailyCheckInRequest request = new DailyCheckInRequest();
         request.setTaskIds(List.of(task1.getId()));
@@ -89,6 +90,7 @@ public class DailyCheckInIntegrationTest {
 
     @Test
     @WithMockUser(username = "checkinUser")
+    @SuppressWarnings("null")
     void shouldReturnEmptyIntentWhenMissingButStillShowSuggestions() throws Exception {
         mockMvc.perform(get("/api/v1/day/today"))
                 .andExpect(status().isOk())
@@ -99,6 +101,7 @@ public class DailyCheckInIntegrationTest {
 
     @Test
     @WithMockUser(username = "checkinUser")
+    @SuppressWarnings("null")
     void shouldCarryOverUnfinishedTasksFromYesterday() throws Exception {
         // Create yesterday's intent
         DailyIntent yesterdayIntent = new DailyIntent();
@@ -119,6 +122,7 @@ public class DailyCheckInIntegrationTest {
 
     @Test
     @WithMockUser(username = "checkinUser")
+    @SuppressWarnings("null")
     void shouldNotCarryOverTasksFromMoreThanOneDayAgo() throws Exception {
         DailyIntent oldIntent = new DailyIntent();
         oldIntent.setUserId(testUser.getId());
@@ -133,6 +137,7 @@ public class DailyCheckInIntegrationTest {
 
     @Test
     @WithMockUser(username = "checkinUser")
+    @SuppressWarnings("null")
     void shouldEnforceTaskOwnershipOnCheckIn() throws Exception {
         User otherUser = userRepository.save(new User("other", "other@ex.com", "pass"));
         Task otherTask = createTask("Other task", Status.PENDING, otherUser);
@@ -148,6 +153,7 @@ public class DailyCheckInIntegrationTest {
 
     @Test
     @WithMockUser(username = "checkinUser")
+    @SuppressWarnings("null")
     void shouldValidateTaskCount() throws Exception {
         DailyCheckInRequest request = new DailyCheckInRequest();
         request.setTaskIds(List.of(1L, 2L, 3L, 4L)); // Too many

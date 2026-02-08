@@ -99,6 +99,7 @@ public class TaskServiceTest {
     }
 
     @Test
+    @SuppressWarnings("null")
     void shouldCreateTaskSuccessfully() {
         mockAuthentication("testuser");
         when(taskRepository.save(any(Task.class))).thenReturn(task);
@@ -129,6 +130,7 @@ public class TaskServiceTest {
     }
 
     @Test
+    @SuppressWarnings("null")
     void shouldUpdateTaskSuccessfully() {
         mockAuthentication("testuser");
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
@@ -141,6 +143,7 @@ public class TaskServiceTest {
     }
 
     @Test
+    @SuppressWarnings("null")
     void shouldDeleteTaskSuccessfully() {
         mockAuthentication("testuser");
         when(taskRepository.findById(1L)).thenReturn(Optional.of(task));

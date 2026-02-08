@@ -51,13 +51,19 @@ public class TaskQueryIntegrationTest {
         private User admin;
 
         @BeforeEach
+        @SuppressWarnings("null")
         void setUp() {
                 taskRepository.deleteAll();
                 refreshTokenRepository.deleteAll();
                 userRepository.deleteAll();
 
                 // Clear caches
-                cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).clear());
+                cacheManager.getCacheNames().forEach(name -> {
+                        org.springframework.cache.Cache cache = cacheManager.getCache(name);
+                        if (cache != null) {
+                                cache.clear();
+                        }
+                });
 
                 Role userRole = roleRepository.findByName(SecurityConstants.ROLE_USER)
                                 .orElseGet(() -> roleRepository.save(new Role(SecurityConstants.ROLE_USER)));
@@ -66,11 +72,11 @@ public class TaskQueryIntegrationTest {
 
                 user = new User("testuser", "test@example.com", "password");
                 user.setRoles(Set.of(userRole));
-                user = userRepository.save(user);
+                user = java.util.Objects.requireNonNull(userRepository.save(user));
 
                 admin = new User("adminuser", "admin@example.com", "password");
                 admin.setRoles(Set.of(adminRole));
-                admin = userRepository.save(admin);
+                admin = java.util.Objects.requireNonNull(userRepository.save(admin));
 
                 // Create some tasks
                 taskRepository.save(
@@ -97,6 +103,7 @@ public class TaskQueryIntegrationTest {
 
         @Test
         @WithMockUser(username = "testuser", roles = "USER")
+        @SuppressWarnings("null")
         void shouldFilterByStatus() throws Exception {
                 mockMvc.perform(get("/api/v1/tasks?status=PENDING"))
                                 .andExpect(status().isOk())
@@ -106,6 +113,7 @@ public class TaskQueryIntegrationTest {
 
         @Test
         @WithMockUser(username = "testuser", roles = "USER")
+        @SuppressWarnings("null")
         void shouldFilterByPriority() throws Exception {
                 mockMvc.perform(get("/api/v1/tasks?priority=HIGH"))
                                 .andExpect(status().isOk())
@@ -115,6 +123,7 @@ public class TaskQueryIntegrationTest {
 
         @Test
         @WithMockUser(username = "testuser", roles = "USER")
+        @SuppressWarnings("null")
         void shouldSearchByKeyword() throws Exception {
                 mockMvc.perform(get("/api/v1/tasks?keyword=Search"))
                                 .andExpect(status().isOk())
@@ -124,6 +133,7 @@ public class TaskQueryIntegrationTest {
 
         @Test
         @WithMockUser(username = "testuser", roles = "USER")
+        @SuppressWarnings("null")
         void shouldNotSeeDeletedTasksByDefault() throws Exception {
                 mockMvc.perform(get("/api/v1/tasks"))
                                 .andExpect(status().isOk())
@@ -134,6 +144,7 @@ public class TaskQueryIntegrationTest {
 
         @Test
         @WithMockUser(username = "testuser", roles = "USER")
+        @SuppressWarnings("null")
         void shouldNotSeeOtherUsersTasks() throws Exception {
                 mockMvc.perform(get("/api/v1/tasks"))
                                 .andExpect(status().isOk())
@@ -152,6 +163,7 @@ public class TaskQueryIntegrationTest {
 
         @Test
         @WithMockUser(username = "adminuser", roles = "ADMIN")
+        @SuppressWarnings("null")
         void adminShouldSeeDeletedTasksWhenRequested() throws Exception {
                 mockMvc.perform(get("/api/v1/tasks?includeDeleted=true"))
                                 .andExpect(status().isOk())

@@ -63,6 +63,7 @@ public class IntentBucketIntegrationTest {
         private User user2;
 
         @BeforeEach
+        @SuppressWarnings("null")
         void setUp() {
                 taskRepository.deleteAll();
                 intentBucketRepository.deleteAll();
@@ -70,22 +71,28 @@ public class IntentBucketIntegrationTest {
                 userRepository.deleteAll();
 
                 // Clear caches to avoid interference
-                cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).clear());
+                cacheManager.getCacheNames().forEach(name -> {
+                        org.springframework.cache.Cache cache = cacheManager.getCache(name);
+                        if (cache != null) {
+                                cache.clear();
+                        }
+                });
 
                 Role userRole = roleRepository.findByName(SecurityConstants.ROLE_USER)
                                 .orElseGet(() -> roleRepository.save(new Role(SecurityConstants.ROLE_USER)));
 
                 user1 = new User("user1", "user1@example.com", "password");
                 user1.setRoles(Set.of(userRole));
-                user1 = userRepository.save(user1);
+                user1 = java.util.Objects.requireNonNull(userRepository.save(user1));
 
                 user2 = new User("user2", "user2@example.com", "password");
                 user2.setRoles(Set.of(userRole));
-                user2 = userRepository.save(user2);
+                user2 = java.util.Objects.requireNonNull(userRepository.save(user2));
         }
 
         @Test
         @WithMockUser(username = "user1", roles = "USER")
+        @SuppressWarnings("null")
         void shouldCreateAndListIntents() throws Exception {
                 IntentBucketRequest request = new IntentBucketRequest();
                 request.setName("Career Growth");
@@ -107,6 +114,7 @@ public class IntentBucketIntegrationTest {
 
         @Test
         @WithMockUser(username = "user1", roles = "USER")
+        @SuppressWarnings("null")
         void shouldEnforceNameUniquenessPerUser() throws Exception {
                 IntentBucket intent = new IntentBucket(user1.getId(), "Family", null, null);
                 intentBucketRepository.save(intent);
@@ -122,6 +130,7 @@ public class IntentBucketIntegrationTest {
 
         @Test
         @WithMockUser(username = "user1", roles = "USER")
+        @SuppressWarnings("null")
         void shouldMaintainOwnershipIsolation() throws Exception {
                 // User 2's intent
                 IntentBucket otherIntent = new IntentBucket(user2.getId(), "Secret", null, null);
@@ -135,6 +144,7 @@ public class IntentBucketIntegrationTest {
 
         @Test
         @WithMockUser(username = "user1", roles = "USER")
+        @SuppressWarnings("null")
         void shouldAssociateTaskWithIntent() throws Exception {
                 IntentBucket intent = new IntentBucket(user1.getId(), "Health", null, null);
                 intent = intentBucketRepository.save(intent);
@@ -155,6 +165,7 @@ public class IntentBucketIntegrationTest {
 
         @Test
         @WithMockUser(username = "user1", roles = "USER")
+        @SuppressWarnings("null")
         void shouldClearIntentOnDeletionButKeepTask() throws Exception {
                 IntentBucket intent = new IntentBucket(user1.getId(), "Temporary", null, null);
                 intent = intentBucketRepository.save(intent);
@@ -177,6 +188,7 @@ public class IntentBucketIntegrationTest {
 
         @Test
         @WithMockUser(username = "user1", roles = "USER")
+        @SuppressWarnings("null")
         void shouldGenerateOverviewWithInsights() throws Exception {
                 IntentBucket career = intentBucketRepository
                                 .save(new IntentBucket(user1.getId(), "Career", null, null));

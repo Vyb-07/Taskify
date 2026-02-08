@@ -90,6 +90,7 @@ public class IntentBucketServiceImpl implements IntentBucketService {
         @Caching(evict = {
                         @CacheEvict(value = "tasks", allEntries = true)
         })
+        @SuppressWarnings("null")
         public void deleteIntent(Long id) {
                 User currentUser = getCurrentUser();
                 IntentBucket bucket = intentBucketRepository.findByIdAndUserId(id, currentUser.getId())

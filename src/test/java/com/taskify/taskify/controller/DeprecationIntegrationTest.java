@@ -41,6 +41,7 @@ public class DeprecationIntegrationTest {
 
     @Test
     @WithMockUser(username = "testuser", roles = "USER")
+    @SuppressWarnings("null")
     public void deprecatedEndpointReturnsDeprecationHeaders() throws Exception {
         // We marked getTaskById as deprecated. Endpoint: /api/v1/tasks/{id}
         // Even if task doesn't exist, the interceptor runs before the controller logic
