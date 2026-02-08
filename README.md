@@ -1,5 +1,11 @@
 # Taskify – Production-Ready Spring Boot Task Management API
 
+## Project Status
+
+> **Status:** ✅ **Feature Complete (v1.0.0)**
+>
+> Taskify is feature-complete as of v1.0.0. Further changes will focus on documentation, maintenance, or future major versions.
+
 Taskify is a professional-grade Task Management REST API built with Spring Boot 3 and Java 21. It is engineered to demonstrate industry-standard backend practices including secure authentication, role-based authorization, observability, and performance optimization.
 
 ## Tech Stack
@@ -161,6 +167,25 @@ src/main/java/com/taskify/taskify
     - **Intent Bucket domain isolation and aggregated overview tests**.
     - **Standardized API Error Handling and security boundary tests**.
 
+## Development & Contribution
+
+### Code Quality Standards
+Taskify enforces strict code quality measures to ensure maintainability and robustness:
+- **Zero Warnings Policy**: The build pipeline enforces a strict zero-warning policy. Eclipse JDT compiler settings are tuned to treat potential null pointer dereferences and unused code as errors.
+- **Null Safety**: Extensive use of `@NonNull` and `Objects.requireNonNull` ensures fail-fast behavior.
+- **Clean Architecture**: Separation of concerns between Controllers, Services, and Repositories is strictly maintained.
+
+### Testing Strategy
+Maintained a comprehensive test suite (81+ tests) covering:
+- **Unit Testing**: Business logic coverage for services using Mockito.
+- **Integration Testing**:
+    - Web layer testing with MockMvc.
+    - JWT and Security flow validation.
+    - Caching behavior and invalidation logic.
+    - Advanced query and ownership enforcement tests.
+    - Idempotency and Retry Safety.
+    - API Deprecation, Focus Mode, and Stagnant Tasks integration.
+
 ## API Endpoints
 
 ### Authentication
@@ -206,7 +231,7 @@ Taskify uses URL-based versioning to ensure backward compatibility as the system
 
 ## API Deprecation Policy
 
-To ensure a stable experience for our clients while allowing the API to evolve, we follow a transparent deprecation lifecycle:
+To ensure a stable experience while allowing the API to evolve, Taskify follows a transparent deprecation lifecycle:
 
 1.  **Signaling**: Deprecated endpoints are marked with the `@Deprecated` annotation and the `deprecated` flag in OpenAPI documentation.
 2.  **HTTP Headers**: Responses from deprecated endpoints include the following headers:
@@ -216,7 +241,7 @@ To ensure a stable experience for our clients while allowing the API to evolve, 
 3.  **Support Period**: Deprecated endpoints are typically supported for **6 months** before removal.
 4.  **Logging**: Usage of deprecated endpoints is monitored via WARN-level logs to identify active clients that need migration.
 
-Clients are encouraged to migrate to successor endpoints as soon as they see the `Deprecation` header.
+Users are encouraged to migrate to successor endpoints as soon as they see the `Deprecation` header.
     
 ## API Error Handling
 
@@ -275,9 +300,10 @@ jwt.refresh-expiration=604800000
 ```
 
 ### Build and Test
+Use the Maven Wrapper for a consistent build environment:
 ```bash
-mvn clean install
-mvn test
+./mvnw clean install
+./mvnw test
 ```
 
 ### Run the Application
